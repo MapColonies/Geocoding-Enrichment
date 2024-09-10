@@ -1,17 +1,18 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: ts-server-boilerplate
-  description: A boilerplate github repo for a REST API service in NodeJS for MapColonies
+  name: geocoding-enrichment
+  description: A service in NodeJS for enriching GeoCoding response data
   annotations:
-    github.com/project-slug: MapColonies/ts-server-boilerplate
+    github.com/project-slug: MapColonies/Vector/geocoding-enrichment
   tags:
     - nodejs
     - typescript
     - expressjs
-    - boilerplate
+    - vector
+    - geocoding
 spec:
   type: service
   lifecycle: production
   owner: DevInfra
-  system: boilerplate
+  system: vector

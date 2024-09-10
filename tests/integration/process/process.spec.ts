@@ -1,0 +1,98 @@
+import jsLogger from '@map-colonies/js-logger';
+import { trace } from '@opentelemetry/api';
+import httpStatusCodes from 'http-status-codes';
+
+import { getApp } from '../../../src/app';
+import { SERVICES } from '../../../src/common/constants';
+import { ProcessRequestSender } from './helpers/requestSender';
+import { EnrichResponse, FeedbackResponse } from '../../../src/common/interfaces';
+
+describe('process', function () {
+  let requestSender: ProcessRequestSender;
+  beforeEach(function () {
+    const app = getApp({
+      override: [
+        { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
+        { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
+      ],
+      useChild: true,
+    });
+    requestSender = new ProcessRequestSender(app);
+  });
+
+  describe('Happy Path', function () {
+    it('should return 200 status code and the resource', async function () {
+      const input: FeedbackResponse = {
+        requestId: 'req-id',
+        chosenResultId: 1,
+        responseTime: new Date(10000 + 500),
+        geocodingResponse: {
+          userId: 'user-id',
+          apiKey: 'api-key',
+          site: 'site-name',
+          respondedAt: new Date(10000),
+          response: {
+            type: 'FeatureCollection',
+            geocoding: {
+              version: 'version',
+              query: {
+                text: 'query-name',
+                geo_context: 'geo_context',
+              },
+            },
+            features: [
+              {
+                type: 'Feature',
+                properties: {
+                  type: 'Point',
+                  source: 'not-source-name',
+                  layer: 'not-layer-name',
+                  name: {
+                    default: 'not-default-name',
+                  },
+                  _score: 10,
+                },
+              },
+              {
+                type: 'Feature',
+                properties: {
+                  type: 'Point',
+                  source: 'source-name',
+                  layer: 'layer-name',
+                  name: {
+                    default: 'default-name',
+                  },
+                  _score: 5,
+                },
+              }
+            ]
+          },
+        },
+      }
+      const response = await requestSender.process(input);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+
+      expect(response).toSatisfyApiSpec();
+
+      const output = response.body as EnrichResponse;
+      expect(output.user.name).toBe('user-id');
+      expect(output.query.text).toBe('query-name');
+      expect(output.query.language).toBe('');
+      expect(output.result.rank).toBe(1);
+      expect(output.result.score).toBe(5);
+      expect(output.result.source).toBe('source-name');
+      expect(output.result.layer).toBe('layer-name');
+      expect(output.result.name).toBe('default-name');
+      expect(output.system).toBe('api-key');
+      expect(output.site).toBe('site-name'); 
+      expect(output.duration).toBe(500);
+    });
+  });
+  describe('Bad Path', function () {
+    // All requests with status code of 400
+  });
+  describe('Sad Path', function () {
+    // All requests with status code 4XX-5XX
+  });
+});

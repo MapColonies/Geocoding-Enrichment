@@ -1,86 +1,194 @@
 openapi: 3.0.1
 info:
-  title: service-name
-  description: basic template for map colonies service
+  title: Geocoding Enrichment
+  description: ''
   version: 1.0.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
 paths:
-  /anotherResource:
-    get:
-      operationId: getAnotherResource
-      tags:
-        - anotherResource
-      summary: gets the resource
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/anotherResource'
-  /resourceName:
-    get:
-      operationId: getResourceName
-      tags:
-        - resourceName
-      summary: gets the resource
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/resource'
+  /process:
     post:
-      operationId: createResource
+      operationId: process
       tags:
-        - resourceName
-      summary: creates a new record of type resource
+        - process
+      summary: Process a response
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - requestId
+                - chosenResultId
+                - responseTime
+                - geocodingResponse
+              properties:
+                requestId:
+                  type: string
+                chosenResultId:
+                  type: number
+                responseTime:
+                  type: string
+                  format: date-time
+                geocodingResponse:
+                  "$ref": "#/components/schemas/geocodingResponse"
+
       responses:
-        201:
-          description: created
+        200:
+          description: processed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/resource'
+                type: object
+                required:
+                  - user
+                  - query
+                  - result
+                  - system
+                  - site
+                  - duration
+                properties:
+                  user:
+                    type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
+                  query:
+                    type: object
+                    required:
+                      - text
+                      - language
+                    properties:
+                      text:
+                        type: string
+                      language:
+                        type: string
+                  result:
+                    type: object
+                    required:
+                      - rank
+                      - score
+                      - source
+                      - layer
+                      - name
+                    properties:
+                      rank:
+                        type: integer
+                      score:
+                        type: number
+                      source:
+                        type: string
+                      layer:
+                        type: string
+                      name:
+                        type: string
+                  system:
+                    type: string
+                  site:
+                    type: string
+                  duration: 
+                    type: number
         400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
+          "$ref": "#/components/responses/BadRequest"
+        500:
+          "$ref": "#/components/responses/InternalError"
 components:
   schemas:
-    error:
+    geocodingResponse:
       type: object
       required:
-        - message
+        - "userId"
+        - "apiKey"
+        - "site"
+        - "response"
+        - "respondedAt"
+      properties:
+        userId:
+          type: string
+        apiKey:
+          type: string
+        site:
+          type: string
+        respondedAt:
+          type: string
+          format: date-time
+        geocodingResponse:
+          type: object
+          required:
+            - 'type'
+            - 'features'
+            - 'geocoding'
+          properties:
+            type:
+              type: 'string'
+              enum: ['FeatureCollection']
+            features:
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    enum: ['Feature']
+                  properties:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        source:
+                          type: string
+                        layer:
+                          type: string
+                        name:
+                          type: object
+                          properties:
+                            default:
+                              type: string
+                        _score:
+                          type: integer
+            geocoding:
+              type: object
+              required:
+                - 'query'
+                - 'response'
+              properties:
+                version:
+                  type: string
+                  pattern: '^\d{3}\.\d{3}\.\d{3}$'
+                  example: 1.5.3
+                query:
+                  type: object
+                  properties:
+                    text:
+                      type: string
+                    limit:
+                      type: integer
+                    geo_context:
+                      type: string
+                    disable_fuzziness:
+                      type: boolean
+    errorSchema:
+      type: object
+      required:
+        - "message"
       properties:
         message:
           type: string
-    resource:
-      type: object
-      required:
-        - id
-        - name
-        - description
-      properties:
-        id:
+        status:
           type: number
-          format: int64
-        name:
-          type: string
-        description:
-          type: string
-    anotherResource:
-      type: object
-      required:
-        - kind
-        - isAlive
-      properties:
-        kind:
-          type: string
-        isAlive:
-          type: boolean
+  responses:
+    BadRequest:
+      description: "Invalid Request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorSchema"
+    InternalError:
+      description: "Invalid Request"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errorSchema"
