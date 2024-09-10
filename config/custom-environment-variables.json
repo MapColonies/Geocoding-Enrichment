@@ -38,5 +38,33 @@
         }
       }
     }
+  },
+  "kafka": {
+    "brokers": "KAFKA_BROKERS",
+    "clientId": "KAFKA_CLIENT_ID",
+    "sasl": {
+      "mechanism": "KAFKA_SASL_MECHANISM",
+      "plain": {
+        "username": "KAFKA_USERNAME",
+        "password": "KAFKA_PASSWORD"
+      },
+      "scram-sha-256": {
+        "username": "KAFKA_USERNAME",
+        "password": "KAFKA_PASSWORD"
+      },
+      "scram-sha-512": {
+        "username": "KAFKA_USERNAME",
+        "password": "KAFKA_PASSWORD"
+      }
+    }
+  },
+  "kafkaConsumer": {
+    "groupId": "KAFKA_CONSUMER_GROUP_ID"
+  },
+  "kafkaProducer": {
+  },
+  "kafkaTopics": {
+    "input": "KAFKA_INPUT_TOPIC",
+    "output": "KAFKA_OUTPUT_TOPIC"
   }
 }
