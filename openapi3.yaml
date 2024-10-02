@@ -32,7 +32,7 @@ paths:
                   type: string
                   format: date-time
                 geocodingResponse:
-                  "$ref": "#/components/schemas/geocodingResponse"
+                  '$ref': '#/components/schemas/geocodingResponse'
 
       responses:
         200:
@@ -89,22 +89,22 @@ paths:
                     type: string
                   site:
                     type: string
-                  duration: 
+                  duration:
                     type: number
         400:
-          "$ref": "#/components/responses/BadRequest"
+          '$ref': '#/components/responses/BadRequest'
         500:
-          "$ref": "#/components/responses/InternalError"
+          '$ref': '#/components/responses/InternalError'
 components:
   schemas:
     geocodingResponse:
       type: object
       required:
-        - "userId"
-        - "apiKey"
-        - "site"
-        - "response"
-        - "respondedAt"
+        - 'userId'
+        - 'apiKey'
+        - 'site'
+        - 'response'
+        - 'respondedAt'
       properties:
         userId:
           type: string
@@ -134,21 +134,21 @@ components:
                     type: string
                     enum: ['Feature']
                   properties:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                        source:
-                          type: string
-                        layer:
-                          type: string
-                        name:
-                          type: object
-                          properties:
-                            default:
-                              type: string
-                        _score:
-                          type: integer
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      source:
+                        type: string
+                      layer:
+                        type: string
+                      name:
+                        type: object
+                        properties:
+                          default:
+                            type: string
+                      _score:
+                        type: integer
             geocoding:
               type: object
               required:
@@ -173,7 +173,7 @@ components:
     errorSchema:
       type: object
       required:
-        - "message"
+        - 'message'
       properties:
         message:
           type: string
@@ -181,14 +181,14 @@ components:
           type: number
   responses:
     BadRequest:
-      description: "Invalid Request"
+      description: 'Invalid Request'
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/errorSchema"
+            $ref: '#/components/schemas/errorSchema'
     InternalError:
-      description: "Invalid Request"
+      description: 'Invalid Request'
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/errorSchema"
+            $ref: '#/components/schemas/errorSchema'

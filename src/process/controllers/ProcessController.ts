@@ -1,6 +1,6 @@
 import { Logger } from '@map-colonies/js-logger';
 import { BoundCounter, Meter } from '@opentelemetry/api-metrics';
-import { RequestHandler, Request } from 'express';
+import { RequestHandler } from 'express';
 import httpStatus from 'http-status-codes';
 import { injectable, inject } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
@@ -16,7 +16,7 @@ export class ProcessController {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(ProcessManager) private readonly manager: ProcessManager,
-    @inject(SERVICES.METER) private readonly meter: Meter,
+    @inject(SERVICES.METER) private readonly meter: Meter
   ) {
     this.processedounter = meter.createCounter('processed');
   }

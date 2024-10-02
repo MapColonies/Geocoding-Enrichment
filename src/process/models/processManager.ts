@@ -1,8 +1,8 @@
 import { Logger } from '@map-colonies/js-logger';
 import { inject, injectable } from 'tsyringe';
+import jwt from 'jsonwebtoken';
 import { SERVICES } from '../../common/constants';
 import { EnrichResponse, FeedbackResponse } from '../../common/interfaces';
-import jwt from 'jsonwebtoken';
 
 const arabicRegex = /[\u0600-\u06FF]/;
 
@@ -30,7 +30,7 @@ export class ProcessManager {
         layer: selectedResponse.properties.layer,
         name: selectedResponse.properties.name.default,
       },
-      system: token?.system,
+      system: token.system,
       site: feedbackResponse.geocodingResponse.site,
       // @ts-expect-error
       duration: new Date(feedbackResponse.responseTime) - new Date(feedbackResponse.geocodingResponse.respondedAt),

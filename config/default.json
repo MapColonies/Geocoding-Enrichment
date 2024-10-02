@@ -25,8 +25,24 @@
       }
     }
   },
-  "kafka": {},
-  "kafkaConsumer": {},
-  "kafkaProducer": {},
-  "kafkaTopics": {}
+  "kafka": {
+    "brokers": "localhost:9092"
+  },
+  "kafkaConsumer": {
+    "groupId": "123"
+  },
+  "kafkaTopics": {
+    "input": "topic"
+  },
+  "elastic": {
+    "node": "http://localhost:9200",
+    "auth": {
+      "username": "elastic",
+      "password": "changeme"
+    },
+    "requestTimeout": 60000,
+    "properties": {
+      "index": "enrich_index"
+    }
+  }
 }

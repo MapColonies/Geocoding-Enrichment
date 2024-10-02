@@ -61,10 +61,17 @@
   "kafkaConsumer": {
     "groupId": "KAFKA_CONSUMER_GROUP_ID"
   },
-  "kafkaProducer": {
-  },
   "kafkaTopics": {
-    "input": "KAFKA_INPUT_TOPIC",
-    "output": "KAFKA_OUTPUT_TOPIC"
+    "input": "KAFKA_INPUT_TOPIC"
+  },
+  "elastic": {
+    "node": "ELASTIC_URL",
+    "auth": {
+      "username": "ELASTIC_USERNAME",
+      "password": "ELASTIC_PASSWORD"
+    },
+    "properties": {
+      "index": "ELASTIC_INDEX"
+    }
   }
 }
