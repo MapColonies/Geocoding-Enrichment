@@ -28,7 +28,7 @@ describe('process', function () {
         responseTime: new Date(10000 + 500),
         geocodingResponse: {
           userId: 'user-id',
-          apiKey: jwt.sign({system: 'api-key'}, 'secret'),
+          apiKey: jwt.sign({ system: 'api-key' }, 'secret'),
           site: 'site-name',
           respondedAt: new Date(10000),
           response: {

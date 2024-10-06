@@ -12,9 +12,14 @@ export class ProcessManager {
 
   public process(feedbackResponse: FeedbackResponse): EnrichResponse {
     // console.log(feedbackResponse);
+    let score = 0;
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[feedbackResponse.chosenResultId];
     const token = jwt.decode(feedbackResponse.geocodingResponse.apiKey) as { system: string };
     const { text } = feedbackResponse.geocodingResponse.response.geocoding.query;
+
+    if (selectedResponse.properties._score) {
+      score = selectedResponse.properties._score;
+    }
 
     return {
       user: {
@@ -26,12 +31,12 @@ export class ProcessManager {
       },
       result: {
         rank: feedbackResponse.chosenResultId,
-        score: selectedResponse.properties._score ?? 0,
+        score: score,
         source: selectedResponse.properties.source,
         layer: selectedResponse.properties.layer,
         name: selectedResponse.properties.names.default,
       },
-      system: token.system,
+      system: token?.system,
       site: feedbackResponse.geocodingResponse.site,
       // @ts-expect-error
       duration: new Date(feedbackResponse.responseTime) - new Date(feedbackResponse.geocodingResponse.respondedAt),
