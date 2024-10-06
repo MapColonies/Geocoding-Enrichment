@@ -36,8 +36,10 @@ export class ProcessManager {
         layer: selectedResponse.properties.layer,
         name: selectedResponse.properties.names.default,
       },
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       system: token?.system,
       site: feedbackResponse.geocodingResponse.site,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       duration: new Date(feedbackResponse.responseTime) - new Date(feedbackResponse.geocodingResponse.respondedAt),
     };

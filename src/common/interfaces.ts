@@ -18,7 +18,7 @@ export interface EnrichResponse {
     layer?: string;
     name: string;
   };
-  system?: string;
+  system: string;
   site: string;
   duration: number;
 }

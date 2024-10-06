@@ -47,7 +47,7 @@ export class StreamerBuilder {
     await this.consumer.run({
       eachMessage: async ({ message }) => {
         const value = message.value?.toString();
-        if (value) {
+        if (value != null) {
           const input = JSON.parse(value) as FeedbackResponse;
           const requestId = input.requestId;
           const output = this.manager.process(input);
