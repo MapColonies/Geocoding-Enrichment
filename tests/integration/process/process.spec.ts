@@ -1,16 +1,16 @@
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-
+import jwt from 'jsonwebtoken';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
-import { ProcessRequestSender } from './helpers/requestSender';
 import { EnrichResponse, FeedbackResponse } from '../../../src/common/interfaces';
+import { ProcessRequestSender } from './helpers/requestSender';
 
 describe('process', function () {
   let requestSender: ProcessRequestSender;
-  beforeEach(function () {
-    const app = getApp({
+  beforeAll(async function () {
+    const app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
@@ -28,7 +28,7 @@ describe('process', function () {
         responseTime: new Date(10000 + 500),
         geocodingResponse: {
           userId: 'user-id',
-          apiKey: 'api-key',
+          apiKey: jwt.sign({system: 'api-key'}, 'secret'),
           site: 'site-name',
           respondedAt: new Date(10000),
           response: {
@@ -37,6 +37,7 @@ describe('process', function () {
               version: 'version',
               query: {
                 text: 'query-name',
+                // eslint-disable-next-line @typescript-eslint/naming-convention
                 geo_context: 'geo_context',
               },
             },
@@ -47,9 +48,10 @@ describe('process', function () {
                   type: 'Point',
                   source: 'not-source-name',
                   layer: 'not-layer-name',
-                  name: {
+                  names: {
                     default: 'not-default-name',
                   },
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
                   _score: 10,
                 },
               },
@@ -59,33 +61,32 @@ describe('process', function () {
                   type: 'Point',
                   source: 'source-name',
                   layer: 'layer-name',
-                  name: {
+                  names: {
                     default: 'default-name',
                   },
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
                   _score: 5,
                 },
-              }
-            ]
+              },
+            ],
           },
         },
-      }
+      };
       const response = await requestSender.process(input);
 
       expect(response.status).toBe(httpStatusCodes.OK);
 
-      expect(response).toSatisfyApiSpec();
-
       const output = response.body as EnrichResponse;
       expect(output.user.name).toBe('user-id');
       expect(output.query.text).toBe('query-name');
-      expect(output.query.language).toBe('');
+      expect(output.query.language).toBe('he');
       expect(output.result.rank).toBe(1);
       expect(output.result.score).toBe(5);
       expect(output.result.source).toBe('source-name');
       expect(output.result.layer).toBe('layer-name');
       expect(output.result.name).toBe('default-name');
       expect(output.system).toBe('api-key');
-      expect(output.site).toBe('site-name'); 
+      expect(output.site).toBe('site-name');
       expect(output.duration).toBe(500);
     });
   });

@@ -46,12 +46,13 @@ export class StreamerBuilder {
 
     await this.consumer.run({
       eachMessage: async ({ message }) => {
-        const value = message.value?.toString();
-        if (value != null) {
+        const value = message?.value?.toString();
+        if (value) {
           const input = JSON.parse(value) as FeedbackResponse;
           const requestId = input.requestId;
           const output = this.manager.process(input);
 
+          // console.log(output)
           await this.elasticClient.index({
             index: this.config.get<string>(elasticIndex),
             body: output,

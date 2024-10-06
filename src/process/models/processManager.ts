@@ -11,6 +11,7 @@ export class ProcessManager {
   public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger) {}
 
   public process(feedbackResponse: FeedbackResponse): EnrichResponse {
+    // console.log(feedbackResponse);
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[feedbackResponse.chosenResultId];
     const token = jwt.decode(feedbackResponse.geocodingResponse.apiKey) as { system: string };
     const { text } = feedbackResponse.geocodingResponse.response.geocoding.query;
@@ -28,7 +29,7 @@ export class ProcessManager {
         score: selectedResponse.properties._score ?? 0,
         source: selectedResponse.properties.source,
         layer: selectedResponse.properties.layer,
-        name: selectedResponse.properties.name.default,
+        name: selectedResponse.properties.names.default,
       },
       system: token.system,
       site: feedbackResponse.geocodingResponse.site,
