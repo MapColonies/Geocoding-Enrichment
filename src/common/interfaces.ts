@@ -54,7 +54,7 @@ export interface QueryResult {
       type: string;
       source?: string;
       layer?: string;
-      name: {
+      names: {
         default: string;
       };
       // eslint-disable-next-line @typescript-eslint/naming-convention
