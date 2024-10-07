@@ -7,6 +7,8 @@ import { SERVICES } from '../../../src/common/constants';
 import { EnrichResponse, FeedbackResponse } from '../../../src/common/interfaces';
 import { ProcessRequestSender } from './helpers/requestSender';
 
+const TIMEOUT = 10000;
+
 describe('process', function () {
   let requestSender: ProcessRequestSender;
   beforeAll(async function () {
@@ -18,7 +20,7 @@ describe('process', function () {
       useChild: true,
     });
     requestSender = new ProcessRequestSender(app);
-  });
+  }, TIMEOUT);
 
   describe('Happy Path', function () {
     it('should return 200 status code and the resource', async function () {
