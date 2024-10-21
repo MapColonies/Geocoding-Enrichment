@@ -21,6 +21,7 @@ export interface EnrichResponse {
   system: string;
   site: string;
   duration: number;
+  timestamp: Date
 }
 
 export interface FeedbackResponse {

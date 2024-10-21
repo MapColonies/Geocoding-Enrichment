@@ -42,6 +42,7 @@ export class ProcessManager {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       duration: new Date(feedbackResponse.responseTime) - new Date(feedbackResponse.geocodingResponse.respondedAt),
+      timestamp: new Date(),
     };
   }
 }
