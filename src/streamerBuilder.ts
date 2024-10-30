@@ -52,7 +52,6 @@ export class StreamerBuilder {
           const requestId = input.requestId;
           const output = this.manager.process(input);
 
-          // console.log(output)
           await this.elasticClient.index({
             index: this.config.get<string>(elasticIndex),
             body: output,
