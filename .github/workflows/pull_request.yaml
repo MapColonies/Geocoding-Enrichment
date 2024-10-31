@@ -66,6 +66,8 @@ jobs:
             KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
             KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9092"
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+            KAFKA_MESSAGE_MAX_BYTES: 200000000
+            KAFKA_MAX_REQUEST_SIZE: 200000000
           ports:
             - 9092:9092
           options: >-
