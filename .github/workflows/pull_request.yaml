@@ -60,28 +60,23 @@ jobs:
 
         # Kafka service
         kafka:
-          image: confluentinc/cp-kafka:7.2.0
+          image: bitnami/kafka:latest
           env:
             KAFKA_BROKER_ID: 1
             KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-            KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9092"
-            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-            KAFKA_MESSAGE_MAX_BYTES: 200000000
-            KAFKA_MAX_REQUEST_SIZE: 200000000
+            ALLOW_PLAINTEXT_LISTENER: "yes"
           ports:
             - 9092:9092
           options: >-
-            --health-cmd "curl -f localhost:9092 || exit 1"
+            --health-cmd "curl -f http://localhost:9092 || exit 1"
             --health-interval 10s
             --health-timeout 5s
-            --health-retries 10
-    
-        # Zookeeper service for Kafka
+            --health-retries 5
+            
         zookeeper:
-          image: confluentinc/cp-zookeeper:7.2.0
+          image: bitnami/zookeeper:latest
           env:
-            ZOOKEEPER_CLIENT_PORT: 2181
-            ZOOKEEPER_TICK_TIME: 2000
+            ALLOW_ANONYMOUS_LOGIN: "yes"
           ports:
             - 2181:2181
           options: >-
@@ -89,7 +84,6 @@ jobs:
             --health-interval 10s
             --health-timeout 5s
             --health-retries 5
-
             
       strategy:
         matrix:
