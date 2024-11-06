@@ -88,8 +88,6 @@ jobs:
             --health-interval 10s
             --health-timeout 5s
             --health-retries 5
-            --entrypoint "sh -c 'until nc -z zookeeper 2181; do echo Waiting for Zookeeper; sleep 5; done; /opt/bitnami/scripts/kafka/entrypoint.sh /run.sh'"
-
             
       strategy:
         matrix:
