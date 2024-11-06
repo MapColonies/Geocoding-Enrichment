@@ -25,8 +25,24 @@
       }
     }
   },
-  "kafka": {},
-  "kafkaConsumer": {},
-  "kafkaProducer": {},
-  "kafkaTopics": {}
+  "kafka": {
+    "brokers": "kafka:9092"
+  },
+  "kafkaConsumer": {
+    "groupId": "123"
+  },
+  "kafkaTopics": {
+    "input": "topic"
+  },
+  "elastic": {
+    "node": "http://elasticsearch:9200",
+    "auth": {
+      "username": "elastic",
+      "password": "changeme"
+    },
+    "requestTimeout": 60000,
+    "properties": {
+      "index": "enrich_index"
+    }
+  }
 }

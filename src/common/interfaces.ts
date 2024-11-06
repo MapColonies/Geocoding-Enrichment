@@ -21,6 +21,7 @@ export interface EnrichResponse {
   system: string;
   site: string;
   duration: number;
+  timestamp: Date
 }
 
 export interface FeedbackResponse {
@@ -43,6 +44,7 @@ export interface QueryResult {
   geocoding: {
     query: {
       text: string;
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       geo_context: string;
     };
     version: string;
@@ -50,13 +52,14 @@ export interface QueryResult {
   features: {
     type: 'Feature';
     properties: {
-      type: string,
+      type: string;
       source?: string;
       layer?: string;
-      name: {
+      names: {
         default: string;
       };
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       _score: number;
     };
-  }[]
+  }[];
 }
