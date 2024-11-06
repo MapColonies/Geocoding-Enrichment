@@ -58,21 +58,6 @@ jobs:
             --health-timeout 5s
             --health-retries 5
 
-        # Kafka service
-        kafka:
-          image: bitnami/kafka:latest
-          env:
-            KAFKA_BROKER_ID: 1
-            KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-            ALLOW_PLAINTEXT_LISTENER: "yes"
-          ports:
-            - 9092:9092
-          options: >-
-            --health-cmd "curl -f http://localhost:9092 || exit 1"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
-            
         zookeeper:
           image: bitnami/zookeeper:latest
           env:
@@ -84,6 +69,27 @@ jobs:
             --health-interval 10s
             --health-timeout 5s
             --health-retries 5
+            
+        # Kafka service
+        kafka:
+          image: bitnami/kafka:latest
+          env:
+            KAFKA_BROKER_ID: 1
+            KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+            ALLOW_PLAINTEXT_LISTENER: "yes"
+            KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT"
+            KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092"
+            KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+            
+          ports:
+            - 9092:9092
+          options: >-
+            --health-cmd "curl -f http://localhost:9092 || exit 1"
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+            --entrypoint "sh -c 'until nc -z zookeeper 2181; do echo Waiting for Zookeeper; sleep 5; done; /opt/bitnami/scripts/kafka/entrypoint.sh /run.sh'"
+
             
       strategy:
         matrix:
