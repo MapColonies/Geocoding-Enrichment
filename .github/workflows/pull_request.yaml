@@ -34,6 +34,12 @@ jobs:
          github_token: ${{ secrets.GITHUB_TOKEN }}
          file: ./openapi3.yaml
 
+      - name: Run Kafka KRaft Broker
+        uses: spicyparrot/kafka-kraft-action@v1.1.0
+        with:
+          kafka-version: "3.7.0"
+          kafka-topics: "input"
+
   integration-test:
       name: Run Integration Tests
       runs-on: ubuntu-latest
@@ -54,37 +60,6 @@ jobs:
           # Set health checks to wait until elastic has started
           options: >-
             --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
-
-        zookeeper:
-          image: bitnami/zookeeper:latest
-          env:
-            ALLOW_ANONYMOUS_LOGIN: "yes"
-          ports:
-            - 2181:2181
-          options: >-
-            --health-cmd "echo ruok | nc localhost 2181 | grep imok || exit 1"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
-            
-        # Kafka service
-        kafka:
-          image: bitnami/kafka:latest
-          env:
-            KAFKA_BROKER_ID: 1
-            KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
-            ALLOW_PLAINTEXT_LISTENER: "yes"
-            KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT"
-            KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092"
-            KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
-            
-          ports:
-            - 9092:9092
-          options: >-
-            --health-cmd "curl -f http://localhost:9092 || exit 1"
             --health-interval 10s
             --health-timeout 5s
             --health-retries 5
@@ -114,6 +89,8 @@ jobs:
 
         - name: Run integration tests
           run: npm run test:integration
+          env:
+            KAFKA_BROKERS: ${{ env.kafka_runner_address }}:9092
 
         - uses: actions/upload-artifact@v4
           with:
