@@ -21,7 +21,7 @@ export interface EnrichResponse {
   system: string;
   site: string;
   duration: number;
-  timestamp: Date
+  timestamp: Date;
 }
 
 export interface FeedbackResponse {
@@ -62,4 +62,13 @@ export interface QueryResult {
       _score: number;
     };
   }[];
+}
+
+export interface IApplication {
+  userDataService: {
+    endpoint: string;
+    queryParams?: {
+      [key: string]: string | number | boolean;
+    };
+  };
 }
