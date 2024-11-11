@@ -73,5 +73,14 @@
     "properties": {
       "index": "ELASTIC_INDEX"
     }
+  },
+  "application": {
+    "userDataService": {
+      "endpoint": "USER_DATA_SERVICE_ENDPOINT",
+      "queryParams": {
+        "__name": "USER_DATA_SERVICE_QUERY_PARAMS",
+        "__format": "json"
+      }
+    }
   }
 }
