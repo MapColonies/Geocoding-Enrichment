@@ -1,3 +1,5 @@
+import type { Feature, FeatureCollection, Point } from 'geojson';
+
 export interface IConfig {
   get: <T>(setting: string) => T;
   has: (setting: string) => boolean;
@@ -17,11 +19,12 @@ export interface EnrichResponse {
     source?: string;
     layer?: string;
     name: string;
+    location?: Feature<Point>;
   };
   system: string;
   site: string;
   duration: number;
-  timestamp: Date
+  timestamp: Date;
 }
 
 export interface FeedbackResponse {
@@ -39,8 +42,7 @@ export interface GeocodingResponse {
   respondedAt: Date; // from Geocoding
 }
 
-export interface QueryResult {
-  type: 'FeatureCollection';
+export interface QueryResult extends FeatureCollection {
   geocoding: {
     query: {
       text: string;
@@ -49,8 +51,7 @@ export interface QueryResult {
     };
     version: string;
   };
-  features: {
-    type: 'Feature';
+  features: (FeatureCollection['features'][number] & {
     properties: {
       type: string;
       source?: string;
@@ -61,5 +62,5 @@ export interface QueryResult {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       _score: number;
     };
-  }[];
+  })[];
 }

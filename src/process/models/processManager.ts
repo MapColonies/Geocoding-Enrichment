@@ -1,4 +1,5 @@
 import { Logger } from '@map-colonies/js-logger';
+import { center } from '@turf/center';
 import { inject, injectable } from 'tsyringe';
 import jwt from 'jsonwebtoken';
 import { SERVICES } from '../../common/constants';
@@ -13,6 +14,7 @@ export class ProcessManager {
   public process(feedbackResponse: FeedbackResponse): EnrichResponse {
     // console.log(feedbackResponse);
     let score = 0;
+
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[feedbackResponse.chosenResultId];
     const token = jwt.decode(feedbackResponse.geocodingResponse.apiKey) as { system: string };
     const { text } = feedbackResponse.geocodingResponse.response.geocoding.query;
@@ -35,6 +37,7 @@ export class ProcessManager {
         source: selectedResponse.properties.source,
         layer: selectedResponse.properties.layer,
         name: selectedResponse.properties.names.default,
+        location: center(selectedResponse),
       },
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       system: token?.system,
