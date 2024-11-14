@@ -25,11 +25,12 @@ export class ProcessManager {
     }
 
     const { endpoint, queryParams } = this.appConfig.userDataService;
+    const fetchedUserData = await fetchUserDataService(endpoint, feedbackResponse.geocodingResponse.userId, queryParams);
 
     return {
       user: {
         name: feedbackResponse.geocodingResponse.userId,
-        ...(await fetchUserDataService(endpoint, feedbackResponse.geocodingResponse.userId, queryParams)),
+        ...fetchedUserData,
       },
       query: {
         language: arabicRegex.test(text) ? 'ar' : 'he',
