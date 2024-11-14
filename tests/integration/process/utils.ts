@@ -1,0 +1,2 @@
+export const mockApiKey =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtYXAtY29sb25pZXMtdGVzdCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMn0.cyKspTifStJI-w2lYk05QaFNyyHYDtUupJddqVj7ZS8';

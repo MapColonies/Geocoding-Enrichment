@@ -8,6 +8,7 @@ import { SERVICES } from '../../../src/common/constants';
 import { EnrichResponse, FeedbackResponse } from '../../../src/common/interfaces';
 import { IApplication } from '../../../src/common/interfaces';
 import { ProcessRequestSender } from './helpers/requestSender';
+import { mockApiKey } from './utils';
 
 const TIMEOUT = 10000;
 
@@ -47,7 +48,7 @@ describe('process', function () {
         responseTime: new Date(10000 + 500),
         geocodingResponse: {
           userId,
-          apiKey: jwt.sign({ system: 'api-key' }, 'secret'),
+          apiKey: mockApiKey,
           site: 'site-name',
           respondedAt: new Date(10000),
           response: {
@@ -117,7 +118,7 @@ describe('process', function () {
         properties: {},
         type: 'Feature',
       });
-      expect(output.system).toBe('api-key');
+      expect(output.system).toBe('map-colonies-test');
       expect(output.site).toBe('site-name');
       expect(output.duration).toBe(500);
 
