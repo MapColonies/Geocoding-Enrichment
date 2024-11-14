@@ -51,7 +51,7 @@ export class StreamerBuilder {
           try {
             const input = JSON.parse(value) as FeedbackResponse;
             const requestId = input.requestId;
-            const output = this.manager.process(input);
+            const output = await this.manager.process(input);
 
             await this.elasticClient.index({
               index: this.config.get<string>(elasticIndex),
