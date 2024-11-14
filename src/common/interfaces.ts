@@ -5,6 +5,7 @@ export interface IConfig {
 
 export interface EnrichResponse {
   user: {
+    [key: string]: string | UserDataServiceResponse;
     name: string;
   };
   query: {
@@ -71,4 +72,15 @@ export interface IApplication {
       [key: string]: string | number | boolean;
     };
   };
+}
+
+export interface UserDataServiceResponse {
+  [key: string]: {
+    [key: string]: unknown;
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    mail: string;
+    domains: string[];
+  } | null;
 }
