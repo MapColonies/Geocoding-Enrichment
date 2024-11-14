@@ -21,8 +21,8 @@ export class ProcessController {
     this.processedounter = meter.createCounter('processed');
   }
 
-  public process: ProcessHandler = (req, res) => {
-    const result = this.manager.process(req.body);
+  public process: ProcessHandler = async (req, res) => {
+    const result = await this.manager.process(req.body);
     this.processedounter.add(1);
     return res.status(httpStatus.OK).json(result);
   };

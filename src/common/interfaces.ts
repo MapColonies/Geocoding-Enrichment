@@ -7,6 +7,7 @@ export interface IConfig {
 
 export interface EnrichResponse {
   user: {
+    [key: string]: string | UserDataServiceResponse;
     name: string;
   };
   query: {
@@ -63,4 +64,24 @@ export interface QueryResult extends FeatureCollection {
       _score: number;
     };
   })[];
+}
+
+export interface IApplication {
+  userDataService: {
+    endpoint: string;
+    queryParams?: {
+      [key: string]: string | number | boolean;
+    };
+  };
+}
+
+export interface UserDataServiceResponse {
+  [key: string]: {
+    [key: string]: unknown;
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    mail: string;
+    domains: string[];
+  } | null;
 }

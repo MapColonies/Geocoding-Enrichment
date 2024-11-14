@@ -3,16 +3,19 @@ import { center } from '@turf/center';
 import { inject, injectable } from 'tsyringe';
 import jwt from 'jsonwebtoken';
 import { SERVICES } from '../../common/constants';
-import { EnrichResponse, FeedbackResponse } from '../../common/interfaces';
+import { EnrichResponse, FeedbackResponse, IApplication } from '../../common/interfaces';
+import { fetchUserDataService } from '../../common/utils';
 
 const arabicRegex = /[\u0600-\u06FF]/;
 
 @injectable()
 export class ProcessManager {
-  public constructor(@inject(SERVICES.LOGGER) private readonly logger: Logger) {}
+  public constructor(
+    @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.APPLICATION) private readonly appConfig: IApplication
+  ) {}
 
-  public process(feedbackResponse: FeedbackResponse): EnrichResponse {
-    // console.log(feedbackResponse);
+  public async process(feedbackResponse: FeedbackResponse): Promise<EnrichResponse> {
     let score = 0;
 
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[feedbackResponse.chosenResultId];
@@ -23,9 +26,13 @@ export class ProcessManager {
       score = selectedResponse.properties._score;
     }
 
+    const { endpoint, queryParams } = this.appConfig.userDataService;
+    const fetchedUserData = await fetchUserDataService(endpoint, feedbackResponse.geocodingResponse.userId, queryParams);
+
     return {
       user: {
         name: feedbackResponse.geocodingResponse.userId,
+        ...fetchedUserData,
       },
       query: {
         language: arabicRegex.test(text) ? 'ar' : 'he',

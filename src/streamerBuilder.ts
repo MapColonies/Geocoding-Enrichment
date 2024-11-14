@@ -51,7 +51,7 @@ export class StreamerBuilder {
           try {
             const input = JSON.parse(value) as FeedbackResponse;
             const requestId = input.requestId;
-            const output = this.manager.process(input);
+            const output = await this.manager.process(input);
 
             await this.elasticClient.index({
               index: this.config.get<string>(elasticIndex),
@@ -60,6 +60,7 @@ export class StreamerBuilder {
             this.logger.info(`Added the enriched data of request: ${requestId} to Elastic successfully`);
           } catch (error) {
             this.logger.error(`Error: Could not add data to elastic. Reason: ${(error as Error).message}`);
+          }
         }
       },
     });

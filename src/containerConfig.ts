@@ -11,6 +11,7 @@ import { elasticClientFactory, ElasticClient } from './common/elastic/index';
 import { tracing } from './common/tracing';
 import { processRouterFactory, PROCESS_ROUTER_SYMBOL } from './process/routes/processRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
+import { IApplication } from './common/interfaces';
 
 export interface RegisterOptions {
   override?: InjectionObject<unknown>[];
@@ -28,11 +29,14 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
 
     const tracer = trace.getTracer(SERVICE_NAME);
 
+    const applicationConfig: IApplication = config.get<IApplication>('application');
+
     const dependencies: InjectionObject<unknown>[] = [
       { token: SERVICES.CONFIG, provider: { useValue: config } },
       { token: SERVICES.LOGGER, provider: { useValue: logger } },
       { token: SERVICES.TRACER, provider: { useValue: tracer } },
       { token: SERVICES.METER, provider: { useValue: OtelMetrics.getMeterProvider().getMeter(SERVICE_NAME) } },
+      { token: SERVICES.APPLICATION, provider: { useValue: applicationConfig } },
       {
         token: SERVICES.ELASTIC_CLIENT,
         provider: { useFactory: instancePerContainerCachingFactory(elasticClientFactory) },
