@@ -14,7 +14,7 @@ export class ProcessManager {
     // console.log(feedbackResponse);
     let score = 0;
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[feedbackResponse.chosenResultId];
-    const token = jwt.decode(feedbackResponse.geocodingResponse.apiKey) as { system: string };
+    const token = JSON.parse(Buffer.from(feedbackResponse.geocodingResponse.apiKey.split('.')[1], 'base64').toString()) as { sub: string };
     const { text } = feedbackResponse.geocodingResponse.response.geocoding.query;
 
     if (selectedResponse.properties._score) {
@@ -37,7 +37,7 @@ export class ProcessManager {
         name: selectedResponse.properties.names.default,
       },
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      system: token?.system,
+      system: token?.sub,
       site: feedbackResponse.geocodingResponse.site,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
