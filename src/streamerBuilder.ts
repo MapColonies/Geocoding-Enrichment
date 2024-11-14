@@ -60,6 +60,7 @@ export class StreamerBuilder {
             this.logger.info(`Added the enriched data of request: ${requestId} to Elastic successfully`);
           } catch (error) {
             this.logger.error(`Error: Could not add data to elastic. Reason: ${(error as Error).message}`);
+          }
         }
       },
     });
