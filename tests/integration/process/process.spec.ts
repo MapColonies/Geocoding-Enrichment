@@ -46,6 +46,10 @@ describe('process', function () {
             features: [
               {
                 type: 'Feature',
+                geometry: {
+                  coordinates: [28.008903004732502, 19.752611840282086],
+                  type: 'Point',
+                },
                 properties: {
                   type: 'Point',
                   source: 'not-source-name',
@@ -59,6 +63,10 @@ describe('process', function () {
               },
               {
                 type: 'Feature',
+                geometry: {
+                  coordinates: [29.008903004732502, 30.752611840282086],
+                  type: 'Point',
+                },
                 properties: {
                   type: 'Point',
                   source: 'source-name',
@@ -87,6 +95,11 @@ describe('process', function () {
       expect(output.result.source).toBe('source-name');
       expect(output.result.layer).toBe('layer-name');
       expect(output.result.name).toBe('default-name');
+      expect(output.result.location).toStrictEqual({
+        geometry: { coordinates: [29.008903004732502, 30.752611840282086], type: 'Point' },
+        properties: {},
+        type: 'Feature',
+      });
       expect(output.system).toBe('api-key');
       expect(output.site).toBe('site-name');
       expect(output.duration).toBe(500);
