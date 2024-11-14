@@ -26,7 +26,7 @@
     }
   },
   "kafka": {
-    "brokers": "localhost:9092"
+    "brokers": "kafka:9092"
   },
   "kafkaConsumer": {
     "groupId": "123"
@@ -35,7 +35,7 @@
     "input": "topic"
   },
   "elastic": {
-    "node": "http://localhost:9200",
+    "node": "http://elasticsearch:9200",
     "auth": {
       "username": "elastic",
       "password": "changeme"
