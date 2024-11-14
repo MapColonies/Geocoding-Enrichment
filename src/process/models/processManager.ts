@@ -1,7 +1,6 @@
 import { Logger } from '@map-colonies/js-logger';
 import { center } from '@turf/center';
 import { inject, injectable } from 'tsyringe';
-import jwt from 'jsonwebtoken';
 import { SERVICES } from '../../common/constants';
 import { EnrichResponse, FeedbackResponse, IApplication } from '../../common/interfaces';
 import { fetchUserDataService } from '../../common/utils';
