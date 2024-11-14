@@ -44,5 +44,13 @@
     "properties": {
       "index": "enrich_index"
     }
+  },
+  "application": {
+    "userDataService": {
+      "endpoint": "http://user-data-service:8080",
+      "queryParams": {
+        "extraDetails": true
+      }
+    }
   }
 }

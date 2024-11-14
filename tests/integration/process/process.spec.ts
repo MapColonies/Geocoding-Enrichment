@@ -1,10 +1,13 @@
+import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import jwt from 'jsonwebtoken';
+import nock from 'nock';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { EnrichResponse, FeedbackResponse } from '../../../src/common/interfaces';
+import { IApplication } from '../../../src/common/interfaces';
 import { ProcessRequestSender } from './helpers/requestSender';
 
 const TIMEOUT = 10000;
@@ -22,14 +25,29 @@ describe('process', function () {
     requestSender = new ProcessRequestSender(app);
   }, TIMEOUT);
 
+  afterAll(function () {
+    nock.cleanAll();
+  });
+
   describe('Happy Path', function () {
     it('should return 200 status code and the resource', async function () {
+      const userId = 'avi@mapcolonies.net';
+      const userDataServiceScope = nock(config.get<IApplication>('application').userDataService.endpoint)
+        .get(`/${userId}?extraDetails=true`)
+        .reply(httpStatusCodes.OK, {
+          firstName: 'avi',
+          lastName: 'map',
+          displayName: 'mapcolonies/avi',
+          mail: 'avi@mapcolonies.net',
+          domains: ['USA', 'FRANCE'],
+        });
+
       const input: FeedbackResponse = {
         requestId: 'req-id',
         chosenResultId: 1,
         responseTime: new Date(10000 + 500),
         geocodingResponse: {
-          userId: 'user-id',
+          userId,
           apiKey: jwt.sign({ system: 'api-key' }, 'secret'),
           site: 'site-name',
           respondedAt: new Date(10000),
@@ -46,6 +64,10 @@ describe('process', function () {
             features: [
               {
                 type: 'Feature',
+                geometry: {
+                  coordinates: [28.008903004732502, 19.752611840282086],
+                  type: 'Point',
+                },
                 properties: {
                   type: 'Point',
                   source: 'not-source-name',
@@ -59,6 +81,10 @@ describe('process', function () {
               },
               {
                 type: 'Feature',
+                geometry: {
+                  coordinates: [29.008903004732502, 30.752611840282086],
+                  type: 'Point',
+                },
                 properties: {
                   type: 'Point',
                   source: 'source-name',
@@ -79,7 +105,7 @@ describe('process', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
 
       const output = response.body as EnrichResponse;
-      expect(output.user.name).toBe('user-id');
+      expect(output.user.name).toBe(userId);
       expect(output.query.text).toBe('query-name');
       expect(output.query.language).toBe('he');
       expect(output.result.rank).toBe(1);
@@ -87,9 +113,16 @@ describe('process', function () {
       expect(output.result.source).toBe('source-name');
       expect(output.result.layer).toBe('layer-name');
       expect(output.result.name).toBe('default-name');
+      expect(output.result.location).toStrictEqual({
+        geometry: { coordinates: [29.008903004732502, 30.752611840282086], type: 'Point' },
+        properties: {},
+        type: 'Feature',
+      });
       expect(output.system).toBe('api-key');
       expect(output.site).toBe('site-name');
       expect(output.duration).toBe(500);
+
+      userDataServiceScope.done();
     });
   });
   describe('Bad Path', function () {
