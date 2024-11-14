@@ -47,16 +47,19 @@ export class StreamerBuilder {
     await this.consumer.run({
       eachMessage: async ({ message }) => {
         const value = message.value?.toString();
-        if (value != null) {
-          const input = JSON.parse(value) as FeedbackResponse;
-          const requestId = input.requestId;
-          const output = this.manager.process(input);
+        if (value != undefined) {
+          try {
+            const input = JSON.parse(value) as FeedbackResponse;
+            const requestId = input.requestId;
+            const output = this.manager.process(input);
 
-          await this.elasticClient.index({
-            index: this.config.get<string>(elasticIndex),
-            body: output,
-          });
-          this.logger.info(`Added the enriched data of request: ${requestId} to Elastic successfully`);
+            await this.elasticClient.index({
+              index: this.config.get<string>(elasticIndex),
+              body: output,
+            });
+            this.logger.info(`Added the enriched data of request: ${requestId} to Elastic successfully`);
+          } catch (error) {
+            this.logger.error(`Error: Could not add data to elastic. Reason: ${(error as Error).message}`);
         }
       },
     });
