@@ -19,7 +19,7 @@ export class ProcessManager {
 
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[feedbackResponse.chosenResultId];
     const token = JSON.parse(Buffer.from(feedbackResponse.geocodingResponse.apiKey.split('.')[1], 'base64').toString()) as { sub: string };
-    const { text } = feedbackResponse.geocodingResponse.response.geocoding.query;
+    const { query } = feedbackResponse.geocodingResponse.response.geocoding.query;
 
     if (selectedResponse.properties._score) {
       score = selectedResponse.properties._score;
@@ -34,15 +34,16 @@ export class ProcessManager {
         ...fetchedUserData,
       },
       query: {
-        language: arabicRegex.test(text) ? 'ar' : 'he',
-        text: text,
+        language: arabicRegex.test(query) ? 'ar' : 'he',
+        text: query,
       },
       result: {
         rank: feedbackResponse.chosenResultId,
         score: score,
-        source: selectedResponse.properties.source,
-        layer: selectedResponse.properties.layer,
+        source: selectedResponse.properties.matches[0].source,
+        layer: selectedResponse.properties.matches[0].layer,
         name: selectedResponse.properties.names.default,
+        region: selectedResponse.properties.regions[0].region,
         location: center(selectedResponse),
       },
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
