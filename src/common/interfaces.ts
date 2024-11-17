@@ -47,9 +47,9 @@ export interface GeocodingResponse {
 export interface QueryResult extends FeatureCollection {
   geocoding: {
     query: {
-      text: string;
+      query: string;
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      geo_context: string;
+      geo_context?: string;
     };
     version: string;
   };

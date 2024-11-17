@@ -56,7 +56,7 @@ describe('process', function () {
             geocoding: {
               version: 'version',
               query: {
-                text: 'query-name',
+                query: 'query-name',
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 geo_context: 'geo_context',
               },

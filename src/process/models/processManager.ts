@@ -19,7 +19,7 @@ export class ProcessManager {
 
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[feedbackResponse.chosenResultId];
     const token = JSON.parse(Buffer.from(feedbackResponse.geocodingResponse.apiKey.split('.')[1], 'base64').toString()) as { sub: string };
-    const { text } = feedbackResponse.geocodingResponse.response.geocoding.query;
+    const { query } = feedbackResponse.geocodingResponse.response.geocoding.query;
 
     if (selectedResponse.properties._score) {
       score = selectedResponse.properties._score;
@@ -34,8 +34,8 @@ export class ProcessManager {
         ...fetchedUserData,
       },
       query: {
-        language: arabicRegex.test(text) ? 'ar' : 'he',
-        text: text,
+        language: arabicRegex.test(query) ? 'ar' : 'he',
+        text: query,
       },
       result: {
         rank: feedbackResponse.chosenResultId,
