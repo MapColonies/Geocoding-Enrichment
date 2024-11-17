@@ -40,9 +40,10 @@ export class ProcessManager {
       result: {
         rank: feedbackResponse.chosenResultId,
         score: score,
-        source: selectedResponse.properties.source,
-        layer: selectedResponse.properties.layer,
+        source: selectedResponse.properties.matches[0].source,
+        layer: selectedResponse.properties.matches[0].layer,
         name: selectedResponse.properties.names.default,
+        region: selectedResponse.properties.regions[0].region,
         location: center(selectedResponse),
       },
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

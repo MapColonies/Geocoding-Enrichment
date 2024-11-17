@@ -70,11 +70,24 @@ describe('process', function () {
                 },
                 properties: {
                   type: 'Point',
-                  source: 'not-source-name',
-                  layer: 'not-layer-name',
+                  matches: [
+                    {
+                      layer: 'not-layer-name',
+                      source: 'not-source-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      source_id: ['not-some-source-id'],
+                    },
+                  ],
                   names: {
                     default: 'not-default-name',
                   },
+                  regions: [
+                    {
+                      region: 'not-region-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      sub_region_names: [],
+                    },
+                  ],
                   // eslint-disable-next-line @typescript-eslint/naming-convention
                   _score: 10,
                 },
@@ -87,11 +100,24 @@ describe('process', function () {
                 },
                 properties: {
                   type: 'Point',
-                  source: 'source-name',
-                  layer: 'layer-name',
+                  matches: [
+                    {
+                      layer: 'layer-name',
+                      source: 'source-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      source_id: ['some-source-id'],
+                    },
+                  ],
                   names: {
                     default: 'default-name',
                   },
+                  regions: [
+                    {
+                      region: 'region-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      sub_region_names: [],
+                    },
+                  ],
                   // eslint-disable-next-line @typescript-eslint/naming-convention
                   _score: 5,
                 },
@@ -113,6 +139,7 @@ describe('process', function () {
       expect(output.result.source).toBe('source-name');
       expect(output.result.layer).toBe('layer-name');
       expect(output.result.name).toBe('default-name');
+      expect(output.result.region).toBe('region-name');
       expect(output.result.location).toStrictEqual({
         geometry: { coordinates: [29.008903004732502, 30.752611840282086], type: 'Point' },
         properties: {},

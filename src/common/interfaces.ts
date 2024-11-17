@@ -21,6 +21,7 @@ export interface EnrichResponse {
     layer?: string;
     name: string;
     location?: Feature<Point>;
+    region: string;
   };
   system: string;
   site: string;
@@ -55,11 +56,20 @@ export interface QueryResult extends FeatureCollection {
   features: (FeatureCollection['features'][number] & {
     properties: {
       type: string;
-      source?: string;
-      layer?: string;
+      matches: {
+        layer: string;
+        source: string;
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        source_id: string[];
+      }[];
       names: {
         default: string;
       };
+      regions: {
+        region: string;
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        sub_region_names: string[];
+      }[];
       // eslint-disable-next-line @typescript-eslint/naming-convention
       _score: number;
     };
