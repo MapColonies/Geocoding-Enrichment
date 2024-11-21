@@ -1,9 +1,10 @@
+import { readFileSync } from 'fs';
 import { inject, injectable } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
 import { Client, ClientOptions } from '@elastic/elasticsearch';
-import { Consumer, ConsumerConfig, Kafka, KafkaConfig } from 'kafkajs';
+import { Consumer, ConsumerConfig, Kafka } from 'kafkajs';
 import { SERVICES } from './common/constants';
-import { FeedbackResponse, IConfig } from './common/interfaces';
+import { FeedbackResponse, IConfig, KafkaOptions } from './common/interfaces';
 import { ProcessManager } from './process/models/processManager';
 
 interface KafkaTopics {
@@ -24,11 +25,18 @@ export class StreamerBuilder {
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(ProcessManager) private readonly manager: ProcessManager
   ) {
-    let kafkaConfig = config.get<KafkaConfig>('kafka');
+    let kafkaConfig = config.get<KafkaOptions>('kafka');
     if (typeof kafkaConfig.brokers === 'string' || kafkaConfig.brokers instanceof String) {
       kafkaConfig = {
         ...kafkaConfig,
         brokers: kafkaConfig.brokers.split(','),
+        ssl: kafkaConfig.enableSslAuth
+          ? {
+              key: readFileSync(kafkaConfig.sslPaths.key, 'utf-8'),
+              cert: readFileSync(kafkaConfig.sslPaths.cert, 'utf-8'),
+              ca: [readFileSync(kafkaConfig.sslPaths.ca, 'utf-8')],
+            }
+          : undefined,
       };
     }
     const consumerConfig = config.get<ConsumerConfig>('kafkaConsumer');
