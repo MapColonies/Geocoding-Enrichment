@@ -26,7 +26,13 @@
     }
   },
   "kafka": {
-    "brokers": "kafka:9092"
+    "brokers": "kafka:9092",
+    "enableSslAuth": false,
+    "sslPaths": {
+      "ca": "",
+      "key": "",
+      "cert": ""
+    }
   },
   "kafkaConsumer": {
     "groupId": "123"

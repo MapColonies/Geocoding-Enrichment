@@ -1,4 +1,5 @@
 import type { Feature, FeatureCollection, Point } from 'geojson';
+import { BrokersFunction, KafkaConfig } from 'kafkajs';
 
 export interface IConfig {
   get: <T>(setting: string) => T;
@@ -95,3 +96,9 @@ export interface UserDataServiceResponse {
     domains: string[];
   } | null;
 }
+
+export type KafkaOptions = {
+  brokers: string[] | BrokersFunction;
+  enableSslAuth: boolean;
+  sslPaths: { ca: string; cert: string; key: string };
+} & KafkaConfig;
