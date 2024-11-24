@@ -25,8 +25,8 @@ export class ProcessManager {
       score = selectedResponse.properties._score;
     }
 
-    const { endpoint, queryParams } = this.appConfig.userDataService;
-    const fetchedUserData = await fetchUserDataService(endpoint, feedbackResponse.geocodingResponse.userId, queryParams);
+    const { endpoint, queryParams, headers } = this.appConfig.userDataService;
+    const fetchedUserData = await fetchUserDataService(endpoint, feedbackResponse.geocodingResponse.userId, queryParams, headers);
 
     return {
       user: {
