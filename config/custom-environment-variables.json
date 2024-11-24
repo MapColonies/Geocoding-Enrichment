@@ -71,6 +71,10 @@
   "application": {
     "userDataService": {
       "endpoint": "USER_DATA_SERVICE_ENDPOINT",
+      "headers": {
+        "__name": "HEADER_PARAMS",
+        "__format": "json"
+      },
       "queryParams": {
         "__name": "USER_DATA_SERVICE_QUERY_PARAMS",
         "__format": "json"

@@ -9,7 +9,8 @@ const axiosInstance = axios.create({
 export const fetchUserDataService = async (
   endpoint: string,
   userId: string,
-  queryParams?: { [key: string]: string | number | boolean | string[] }
+  queryParams?: { [key: string]: string | number | boolean | string[] },
+  headerParams?: { [key: string]: string | number | boolean | string[] }
 ): Promise<UserDataServiceResponse> => {
   let res: AxiosResponse | null = null;
 
@@ -17,7 +18,7 @@ export const fetchUserDataService = async (
     .map(([key, value]) => `${key}=${String(value)}`)
     .join('&');
 
-  res = await axiosInstance.get(`${endpoint}/${userId}?${stringQueryParams}`);
+  res = await axiosInstance.get(`${endpoint}/${userId}?${stringQueryParams}`, { headers: headerParams });
 
   return (res?.data ?? {}) as UserDataServiceResponse;
 };

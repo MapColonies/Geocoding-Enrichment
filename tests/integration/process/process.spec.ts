@@ -32,7 +32,11 @@ describe('process', function () {
   describe('Happy Path', function () {
     it('should return 200 status code and the resource', async function () {
       const userId = 'avi@mapcolonies.net';
-      const userDataServiceScope = nock(config.get<IApplication>('application').userDataService.endpoint)
+      const userDataServiceScope = nock(config.get<IApplication>('application').userDataService.endpoint, {
+        reqheaders: {
+          headerDetails: () => true,
+        },
+      })
         .get(`/${userId}?extraDetails=true`)
         .reply(httpStatusCodes.OK, {
           firstName: 'avi',

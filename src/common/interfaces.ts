@@ -80,6 +80,9 @@ export interface QueryResult extends FeatureCollection {
 export interface IApplication {
   userDataService: {
     endpoint: string;
+    headers?: {
+      [key: string]: string | number | boolean;
+    };
     queryParams?: {
       [key: string]: string | number | boolean;
     };
