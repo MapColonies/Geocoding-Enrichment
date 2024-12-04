@@ -19,7 +19,7 @@ export class ProcessManager {
 
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[feedbackResponse.chosenResultId];
     const token = JSON.parse(Buffer.from(feedbackResponse.geocodingResponse.apiKey.split('.')[1], 'base64').toString()) as { sub: string };
-    const queryText = this.getQueryText(feedbackResponse);
+    const text = this.getQueryText(feedbackResponse);
 
     if (selectedResponse.properties._score) {
       score = selectedResponse.properties._score;
@@ -34,8 +34,8 @@ export class ProcessManager {
         ...fetchedUserData,
       },
       query: {
-        language: arabicRegex.test(queryText as string) ? 'ar' : 'he',
-        text: queryText,
+        language: arabicRegex.test(text) ? 'ar' : 'he',
+        text: text,
       },
       result: {
         rank: feedbackResponse.chosenResultId,
@@ -56,11 +56,11 @@ export class ProcessManager {
     };
   }
 
-  public getQueryText(feedbackResponse: FeedbackResponse): string | undefined {
+  public getQueryText(feedbackResponse: FeedbackResponse): string {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { query, tile, command_name, mgrs, sub_tile, control_point } = feedbackResponse.geocodingResponse.response.geocoding.query;
 
-    let text = query ?? tile ?? command_name ?? mgrs;
+    let text = query ?? tile ?? command_name ?? mgrs ?? '';
     const additionalInfo = sub_tile ?? control_point;
     text += additionalInfo != undefined ? `, ${additionalInfo}` : '';
 
