@@ -39,7 +39,7 @@ export class ProcessManager {
       },
       result: {
         rank: feedbackResponse.chosenResultId,
-        score: score,
+        score,
         source: selectedResponse.properties.matches[0].source,
         layer: selectedResponse.properties.matches[0].layer,
         name: selectedResponse.properties.names.default,
