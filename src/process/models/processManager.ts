@@ -59,16 +59,11 @@ export class ProcessManager {
   public getQueryText(feedbackResponse: FeedbackResponse): string | undefined {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { query, tile, command_name, mgrs, sub_tile, control_point } = feedbackResponse.geocodingResponse.response.geocoding.query;
-    return query != undefined
-      ? query
-      : sub_tile != undefined && tile != undefined
-      ? `${tile}, ${sub_tile}`
-      : tile != undefined
-      ? tile
-      : control_point != undefined && command_name != undefined
-      ? `${command_name}, ${control_point}`
-      : command_name != undefined
-      ? command_name
-      : mgrs;
+
+    let text = query ?? tile ?? command_name ?? mgrs;
+    const additionalInfo = sub_tile ?? control_point;
+    text += additionalInfo != undefined ? `, ${additionalInfo}` : '';
+
+    return text;
   }
 }

@@ -50,15 +50,13 @@ export interface QueryResult extends FeatureCollection {
     query: {
       query?: string;
       tile?: string;
-      // eslint-disable-next-line @typescript-eslint/naming-convention
+      /* eslint-disable @typescript-eslint/naming-convention */
       sub_tile?: string;
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       command_name?: string;
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       control_point?: string;
       mgrs?: string;
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       geo_context?: string;
+      /* eslint-enable @typescript-eslint/naming-convention */
     };
     version: string;
   };
@@ -68,7 +66,7 @@ export interface QueryResult extends FeatureCollection {
       matches: {
         layer: string;
         source: string;
-        // eslint-disable-next-line @typescript-eslint/naming-convention
+        /* eslint-disable @typescript-eslint/naming-convention */
         source_id: string[];
       }[];
       names: {
@@ -76,11 +74,10 @@ export interface QueryResult extends FeatureCollection {
       };
       regions: {
         region: string;
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         sub_region_names: string[];
       }[];
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       _score: number;
+      /* eslint-enable @typescript-eslint/naming-convention */
     };
   })[];
 }
