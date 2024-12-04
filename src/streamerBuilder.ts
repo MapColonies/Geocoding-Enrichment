@@ -50,7 +50,7 @@ export class StreamerBuilder {
     const { input: inputTopic } = this.config.get<KafkaTopics>('kafkaTopics');
 
     await this.consumer.connect();
-    await this.consumer.subscribe({ topics: [inputTopic] });
+    await this.consumer.subscribe({ topics: inputTopic.split(',') });
 
     await this.consumer.run({
       eachMessage: async ({ message }) => {
