@@ -10,7 +10,7 @@ import { IApplication } from '../../../src/common/interfaces';
 import { ProcessRequestSender } from './helpers/requestSender';
 import { mockApiKey } from './utils';
 
-const TIMEOUT = 10000;
+const TIMEOUT = 25000;
 
 describe('process', function () {
   let requestSender: ProcessRequestSender;

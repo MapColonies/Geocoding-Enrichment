@@ -12,7 +12,7 @@ export interface EnrichResponse {
     name: string;
   };
   query: {
-    text: string;
+    text?: string;
     language: string;
   };
   result: {
@@ -48,7 +48,15 @@ export interface GeocodingResponse {
 export interface QueryResult extends FeatureCollection {
   geocoding: {
     query: {
-      query: string;
+      query?: string;
+      tile?: string;
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      sub_tile?: string;
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      command_name?: string;
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      control_point?: string;
+      mgrs?: string;
       // eslint-disable-next-line @typescript-eslint/naming-convention
       geo_context?: string;
     };
