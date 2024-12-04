@@ -12,7 +12,7 @@ export interface EnrichResponse {
     name: string;
   };
   query: {
-    text: string;
+    text?: string;
     language: string;
   };
   result: {
@@ -48,9 +48,15 @@ export interface GeocodingResponse {
 export interface QueryResult extends FeatureCollection {
   geocoding: {
     query: {
-      query: string;
-      // eslint-disable-next-line @typescript-eslint/naming-convention
+      query?: string;
+      tile?: string;
+      /* eslint-disable @typescript-eslint/naming-convention */
+      sub_tile?: string;
+      command_name?: string;
+      control_point?: string;
+      mgrs?: string;
       geo_context?: string;
+      /* eslint-enable @typescript-eslint/naming-convention */
     };
     version: string;
   };
@@ -60,7 +66,7 @@ export interface QueryResult extends FeatureCollection {
       matches: {
         layer: string;
         source: string;
-        // eslint-disable-next-line @typescript-eslint/naming-convention
+        /* eslint-disable @typescript-eslint/naming-convention */
         source_id: string[];
       }[];
       names: {
@@ -68,11 +74,10 @@ export interface QueryResult extends FeatureCollection {
       };
       regions: {
         region: string;
-        // eslint-disable-next-line @typescript-eslint/naming-convention
         sub_region_names: string[];
       }[];
-      // eslint-disable-next-line @typescript-eslint/naming-convention
       _score: number;
+      /* eslint-enable @typescript-eslint/naming-convention */
     };
   })[];
 }

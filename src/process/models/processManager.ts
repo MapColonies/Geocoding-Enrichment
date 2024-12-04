@@ -19,7 +19,7 @@ export class ProcessManager {
 
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[feedbackResponse.chosenResultId];
     const token = JSON.parse(Buffer.from(feedbackResponse.geocodingResponse.apiKey.split('.')[1], 'base64').toString()) as { sub: string };
-    const { query } = feedbackResponse.geocodingResponse.response.geocoding.query;
+    const text = this.getQueryText(feedbackResponse);
 
     if (selectedResponse.properties._score) {
       score = selectedResponse.properties._score;
@@ -34,12 +34,12 @@ export class ProcessManager {
         ...fetchedUserData,
       },
       query: {
-        language: arabicRegex.test(query) ? 'ar' : 'he',
-        text: query,
+        language: arabicRegex.test(text) ? 'ar' : 'he',
+        text,
       },
       result: {
         rank: feedbackResponse.chosenResultId,
-        score: score,
+        score,
         source: selectedResponse.properties.matches[0].source,
         layer: selectedResponse.properties.matches[0].layer,
         name: selectedResponse.properties.names.default,
@@ -54,5 +54,16 @@ export class ProcessManager {
       duration: new Date(feedbackResponse.responseTime) - new Date(feedbackResponse.geocodingResponse.respondedAt),
       timestamp: new Date(),
     };
+  }
+
+  public getQueryText(feedbackResponse: FeedbackResponse): string {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { query, tile, command_name, mgrs, sub_tile, control_point } = feedbackResponse.geocodingResponse.response.geocoding.query;
+
+    let text = query ?? tile ?? command_name ?? mgrs ?? '';
+    const additionalInfo = sub_tile ?? control_point;
+    text += additionalInfo != undefined ? `, ${additionalInfo}` : '';
+
+    return text;
   }
 }
