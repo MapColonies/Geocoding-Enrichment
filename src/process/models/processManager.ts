@@ -35,7 +35,7 @@ export class ProcessManager {
       },
       query: {
         language: arabicRegex.test(text) ? 'ar' : 'he',
-        text: text,
+        text,
       },
       result: {
         rank: feedbackResponse.chosenResultId,
