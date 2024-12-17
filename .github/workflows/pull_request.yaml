@@ -63,7 +63,7 @@ jobs:
             --health-interval 10s
             --health-timeout 5s
             --health-retries 5
-            
+
         zookeeper:
           image: bitnami/zookeeper:3.8.0
           ports:
@@ -111,7 +111,8 @@ jobs:
         
         - name: Create Kafka topic
           run: |
-            kafka-topics.sh --create --topic test-topic --bootstrap-server kafka:9092
+            docker exec $(docker ps -qf "name=kafka") \
+            kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092
 
         - name: Run integration tests
           run: npm run test:integration
