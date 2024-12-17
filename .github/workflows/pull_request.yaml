@@ -48,7 +48,7 @@ jobs:
         # Label used to access the service container
         elasticsearch:
           # Docker Hub image
-          image: elasticsearch:8.15.3
+          image: elasticsearch:7.17.23
           env:
             discovery.type: single-node
             xpack.security.enabled: false
@@ -117,7 +117,7 @@ jobs:
 
         - name: Wait for Elasticsearch
           run: |
-            until curl -s http://elasticsearch:9200/_cluster/health | grep '"status" : "yellow"'; do
+            until curl -s http://elasticsearch:9200/_cluster/health | grep -E '"status":"(yellow|green)"'; do
               echo "Waiting for Elasticsearch...";
               sleep 5;
             done
