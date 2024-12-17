@@ -43,12 +43,13 @@ jobs:
   integration-test:
       name: Run Integration Tests
       runs-on: ubuntu-latest
+      container: node:16
 
       services:
         # Label used to access the service container
         elasticsearch:
           # Docker Hub image
-          image: elasticsearch:7.17.23
+          image: elasticsearch:8.15.3
           env:
             discovery.type: single-node
             xpack.security.enabled: false
