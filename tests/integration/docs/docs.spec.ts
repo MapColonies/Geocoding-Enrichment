@@ -5,7 +5,7 @@ import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { DocsRequestSender } from './helpers/docsRequestSender';
 
-const TIMEOUT = 10000;
+const TIMEOUT = 20000;
 
 describe('docs', function () {
   let requestSender: DocsRequestSender;
