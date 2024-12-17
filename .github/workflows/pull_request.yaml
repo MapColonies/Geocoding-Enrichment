@@ -48,7 +48,7 @@ jobs:
         # Label used to access the service container
         elasticsearch:
           # Docker Hub image
-          image: elasticsearch:8.13.0
+          image: elasticsearch:7.17.0
           env:
             discovery.type: single-node
             xpack.security.enabled: false
