@@ -34,11 +34,11 @@ jobs:
          github_token: ${{ secrets.GITHUB_TOKEN }}
          file: ./openapi3.yaml
 
-      - name: Run Kafka KRaft Broker
-        uses: spicyparrot/kafka-kraft-action@v1.1.0
-        with:
-          kafka-version: "3.7.0"
-          kafka-topics: "input"
+      # - name: Run Kafka KRaft Broker
+      #   uses: spicyparrot/kafka-kraft-action@v1.1.0
+      #   with:
+      #     kafka-version: "3.7.0"
+      #     kafka-topics: "input"
 
   integration-test:
       name: Run Integration Tests
@@ -60,6 +60,15 @@ jobs:
           # Set health checks to wait until elastic has started
           options: >-
             --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+        kafka:
+          image: apache/kafka:3.8.0
+          ports:
+            - 9092:9092
+          options: >-
+            --health-cmd "kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"
             --health-interval 10s
             --health-timeout 5s
             --health-retries 5
@@ -86,11 +95,14 @@ jobs:
               echo "Waiting for Elasticsearch...";
               sleep 5;
             done
+        
+        - name: Create Kafka topic
+          run: kafka-topics.sh --create --topic topic --bootstrap-server kafka:9092
 
         - name: Run integration tests
           run: npm run test:integration
-          env:
-            KAFKA_BROKERS: ${{ env.kafka_runner_address }}:9092
+          # env:
+          #   KAFKA_BROKERS: ${{ env.kafka_runner_address }}:9092
 
         - uses: actions/upload-artifact@v4
           with:
