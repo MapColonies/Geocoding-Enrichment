@@ -111,7 +111,7 @@ jobs:
         
         - name: Create Kafka topic
           run: |
-            docker exec $(docker ps -qf "name=kafka") \
+            sudo docker exec $(docker ps -qf "name=kafka") \
             kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092
 
         - name: Run integration tests
