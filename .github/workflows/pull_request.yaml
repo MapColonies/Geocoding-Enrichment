@@ -48,7 +48,7 @@ jobs:
         # Label used to access the service container
         elasticsearch:
           # Docker Hub image
-          image: elasticsearch:7.17.0
+          image: elasticsearch:8.15.3
           env:
             discovery.type: single-node
             xpack.security.enabled: false
@@ -100,6 +100,11 @@ jobs:
 
         - name: Install Node.js dependencies
           run: npm ci
+                  
+        - name: Create Kafka topic
+          run: |
+            docker exec $(docker ps -qf "name=kafka") \
+            kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092
 
         - name: Wait for Elasticsearch
           run: |
@@ -107,11 +112,6 @@ jobs:
               echo "Waiting for Elasticsearch...";
               sleep 5;
             done
-        
-        - name: Create Kafka topic
-          run: |
-            docker exec $(docker ps -qf "name=kafka") \
-            kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092
 
         - name: Run integration tests
           run: npm run test:integration
