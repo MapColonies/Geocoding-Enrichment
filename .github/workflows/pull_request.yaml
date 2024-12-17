@@ -101,6 +101,11 @@ jobs:
 
         - name: Install Node.js dependencies
           run: npm ci
+
+        - name: Install Docker
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y docker.io
                   
         - name: Create Kafka topic
           run: |
