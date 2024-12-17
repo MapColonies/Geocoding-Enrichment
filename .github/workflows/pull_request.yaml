@@ -34,12 +34,6 @@ jobs:
          github_token: ${{ secrets.GITHUB_TOKEN }}
          file: ./openapi3.yaml
 
-      # - name: Run Kafka KRaft Broker
-      #   uses: spicyparrot/kafka-kraft-action@v1.1.0
-      #   with:
-      #     kafka-version: "3.7.0"
-      #     kafka-topics: "input"
-
   integration-test:
       name: Run Integration Tests
       runs-on: ubuntu-latest
@@ -119,15 +113,6 @@ jobs:
             docker exec $(docker ps -qf "name=kafka") \
             kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092
 
-        # - name: Wait for Elasticsearch
-        #   run: |
-        #     echo "Checking Elasticsearch logs:"
-        #     docker logs $(docker ps -qf "name=elasticsearch") || echo "No logs available."
-        #     until curl -s http://elasticsearch:9200/_cluster/health | grep -E '"status":"(yellow|green)"'; do
-        #       echo "Waiting for Elasticsearch...";
-        #       sleep 5;
-        #     done
-
         - name: Wait for Elasticsearch
           run: |
             until curl -s http://elasticsearch:9200/_cluster/health | grep -E '"status":"(yellow|green)"'; do
@@ -137,8 +122,6 @@ jobs:
 
         - name: Run integration tests
           run: npm run test:integration
-          # env:
-          #   KAFKA_BROKERS: ${{ env.kafka_runner_address }}:9092
 
         - uses: actions/upload-artifact@v4
           with:
