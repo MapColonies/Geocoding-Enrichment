@@ -106,6 +106,13 @@ jobs:
           run: |
             apt-get update
             apt-get install -y docker.io
+
+        - name: Wait for Kafka
+          run: |
+            until docker exec $(docker ps -qf "name=kafka") kafka-topics.sh --list --bootstrap-server localhost:9092; do
+              echo "Waiting for Kafka to be ready...";
+              sleep 5;
+            done
                   
         - name: Create Kafka topic
           run: |
