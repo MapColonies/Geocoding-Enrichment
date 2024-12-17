@@ -43,7 +43,6 @@ jobs:
   integration-test:
       name: Run Integration Tests
       runs-on: ubuntu-latest
-      container: node:16
 
       services:
         # Label used to access the service container
@@ -111,7 +110,7 @@ jobs:
         
         - name: Create Kafka topic
           run: |
-            sudo docker exec $(docker ps -qf "name=kafka") \
+            docker exec $(docker ps -qf "name=kafka") \
             kafka-topics.sh --create --topic test-topic --bootstrap-server localhost:9092
 
         - name: Run integration tests
