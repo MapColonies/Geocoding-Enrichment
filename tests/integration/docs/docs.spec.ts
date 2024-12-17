@@ -5,6 +5,8 @@ import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { DocsRequestSender } from './helpers/docsRequestSender';
 
+const TIMEOUT = 10000;
+
 describe('docs', function () {
   let requestSender: DocsRequestSender;
   beforeAll(async function () {
@@ -16,7 +18,7 @@ describe('docs', function () {
       useChild: true,
     });
     requestSender = new DocsRequestSender(app);
-  });
+  }, TIMEOUT);
 
   describe('Happy Path', function () {
     it('should return 200 status code and the resource', async function () {
