@@ -29,11 +29,10 @@ jobs:
           eslint_extensions: ts
 
       - name: OpenAPI Lint Checks
-        if: ${{ inputs.enableOpenApiCheck == true }}
         uses: nwestfall/openapi-action@v1.0.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ inputs.openApiFilePath }}
+          file: ./openapi3.yaml
   
   integration-test:
       name: Run Integration Tests
