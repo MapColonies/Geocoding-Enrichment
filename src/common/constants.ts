@@ -14,5 +14,6 @@ export const SERVICES = {
   METER: Symbol('Meter'),
   ELASTIC_CLIENT: Symbol('ElasticClient'),
   APPLICATION: Symbol('Application'),
+  CLEANUP_REGISTRY: Symbol('CleanupRegistry'),
 } satisfies Record<string, symbol>;
 /* eslint-enable @typescript-eslint/naming-convention */

@@ -3,16 +3,17 @@ import 'reflect-metadata';
 import { createServer } from 'http';
 import { createTerminus } from '@godaddy/terminus';
 import { Logger } from '@map-colonies/js-logger';
-import { container } from 'tsyringe';
+import { DependencyContainer } from 'tsyringe';
 import config from 'config';
 import { DEFAULT_SERVER_PORT, SERVICES } from './common/constants';
-
 import { getApp } from './app';
 
 const port: number = config.get<number>('server.port') || DEFAULT_SERVER_PORT;
+let depContainer: DependencyContainer | undefined;
 
 getApp()
-  .then((app) => {
+  .then(({ app, container }) => {
+    depContainer = container;
     const logger = container.resolve<Logger>(SERVICES.LOGGER);
     const stubHealthCheck = async (): Promise<void> => Promise.resolve();
     const server = createServer(app);
@@ -23,7 +24,15 @@ getApp()
       logger.info(`app started on port ${port}`);
     });
   })
-  .catch((error) => {
-    const logger = container.resolve<Logger>(SERVICES.LOGGER);
-    logger.error(`Failed to connect to app. Error: ${(error as Error).message}`);
+  .catch(async (error: Error) => {
+    const errorLogger =
+      depContainer?.isRegistered(SERVICES.LOGGER) == true
+        ? depContainer.resolve<Logger>(SERVICES.LOGGER).error.bind(depContainer.resolve<Logger>(SERVICES.LOGGER))
+        : console.error;
+    errorLogger({ msg: '😢 - failed initializing the server', err: error });
+
+    if (depContainer?.isRegistered('onSignal') == true) {
+      const shutDown: () => Promise<void> = depContainer.resolve('onSignal');
+      await shutDown();
+    }
   });

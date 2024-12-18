@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v1
@@ -29,16 +29,11 @@ jobs:
           eslint_extensions: ts
 
       - name: OpenAPI Lint Checks
+        if: ${{ inputs.enableOpenApiCheck == true }}
         uses: nwestfall/openapi-action@v1.0.2
         with:
-         github_token: ${{ secrets.GITHUB_TOKEN }}
-         file: ./openapi3.yaml
-         
-      - name: Run Kafka KRaft Broker
-        uses: spicyparrot/kafka-kraft-action@v1.1.0
-        with:
-          kafka-version: "3.7.0"
-          kafka-topics: "topic"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ inputs.openApiFilePath }}
   
   integration-test:
       name: Run Integration Tests
@@ -49,7 +44,7 @@ jobs:
         # Label used to access the service container
         elasticsearch:
           # Docker Hub image
-          image: elasticsearch:8.13.0
+          image: elasticsearch:8.15.3
           env:
             discovery.type: single-node
             xpack.security.enabled: false
@@ -60,6 +55,28 @@ jobs:
           # Set health checks to wait until elastic has started
           options: >-
             --health-cmd "curl -f http://localhost:9200/_cluster/health || exit 1"
+            --health-interval 10s
+            --health-timeout 10s
+            --health-retries 30
+
+        zookeeper:
+          image: bitnami/zookeeper:3.8.0
+          ports:
+            - 2181:2181
+          env:
+            ALLOW_ANONYMOUS_LOGIN: yes
+
+        kafka:
+          image: bitnami/kafka:3.8.0
+          ports:
+            - 9092:9092
+          env:
+            KAFKA_BROKER_ID: 1
+            KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+            KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+            ALLOW_PLAINTEXT_LISTENER: yes
+          options: >-
+            --health-cmd "kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"
             --health-interval 10s
             --health-timeout 5s
             --health-retries 5
@@ -80,17 +97,37 @@ jobs:
         - name: Install Node.js dependencies
           run: npm ci
 
+        - name: Install Docker
+          run: |
+            apt-get update
+            apt-get install -y docker.io
+       
+        - name: Wait for Kafka
+          run: |
+            until docker exec $(docker ps -qf "name=kafka") kafka-topics.sh --list --bootstrap-server localhost:9092; do
+              echo "Waiting for Kafka to be ready...";
+              sleep 5;
+            done
+
+        - name: Create Kafka topic1
+          run: |
+            docker exec $(docker ps -qf "name=kafka") \
+            kafka-topics.sh --create --topic topic1-test --bootstrap-server localhost:9092
+
+        - name: Create Kafka topic2
+          run: |
+            docker exec $(docker ps -qf "name=kafka") \
+            kafka-topics.sh --create --topic topic2-test --bootstrap-server localhost:9092
+
         - name: Wait for Elasticsearch
           run: |
-            until curl -s http://elasticsearch:9200/_cluster/health | grep '"status":"green"'; do
+            until curl -s http://elasticsearch:9200/_cluster/health | grep -E '"status":"(yellow|green)"'; do
               echo "Waiting for Elasticsearch...";
               sleep 5;
             done
 
         - name: Run integration tests
           run: npm run test:integration
-          env:
-            KAFKA_BROKERS: ${{ env.kafka_runner_address }}:9092
 
         - uses: actions/upload-artifact@v4
           with:

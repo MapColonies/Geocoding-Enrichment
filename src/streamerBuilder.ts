@@ -3,6 +3,7 @@ import { inject, injectable } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
 import { Client, ClientOptions } from '@elastic/elasticsearch';
 import { Consumer, ConsumerConfig, Kafka } from 'kafkajs';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { SERVICES } from './common/constants';
 import { FeedbackResponse, IConfig, KafkaOptions } from './common/interfaces';
 import { ProcessManager } from './process/models/processManager';
@@ -23,6 +24,7 @@ export class StreamerBuilder {
   public constructor(
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
+    @inject(SERVICES.CLEANUP_REGISTRY) private readonly cleanupRegistry: CleanupRegistry,
     @inject(ProcessManager) private readonly manager: ProcessManager
   ) {
     let kafkaConfig = config.get<KafkaOptions>('kafka');
@@ -44,6 +46,7 @@ export class StreamerBuilder {
     this.consumer = this.kafka.consumer(consumerConfig);
     elasticConfig = config.get<ClientOptions>('elastic');
     this.elasticClient = new Client(elasticConfig);
+    this.cleanupRegistry.register({ func: this.consumer.disconnect.bind(this.consumer) });
   }
 
   public async build(): Promise<void> {

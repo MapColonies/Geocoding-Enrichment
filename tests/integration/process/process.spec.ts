@@ -3,14 +3,15 @@ import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
 import nock from 'nock';
+import { CleanupRegistry } from '@map-colonies/cleanup-registry';
+import { DependencyContainer } from 'tsyringe';
+import { Application } from 'express';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { EnrichResponse, FeedbackResponse } from '../../../src/common/interfaces';
 import { IApplication } from '../../../src/common/interfaces';
 import { ProcessRequestSender } from './helpers/requestSender';
 import { mockApiKey } from './utils';
-
-const TIMEOUT = 25000;
 
 let currentKafkaTopics = {
   input: 'topic1-test',
@@ -31,24 +32,29 @@ jest.mock('config', () => {
 
 describe('process', function () {
   let requestSender: ProcessRequestSender;
+  let app: { app: Application; container: DependencyContainer };
+
   beforeAll(async function () {
-    const app = await getApp({
+    app = await getApp({
       override: [
         { token: SERVICES.LOGGER, provider: { useValue: jsLogger({ enabled: false }) } },
         { token: SERVICES.TRACER, provider: { useValue: trace.getTracer('testTracer') } },
       ],
       useChild: true,
     });
-    requestSender = new ProcessRequestSender(app);
-  }, TIMEOUT);
+    requestSender = new ProcessRequestSender(app.app);
+  });
 
   beforeEach(function () {
     jest.resetModules();
     jest.clearAllMocks();
   });
 
-  afterAll(function () {
+  afterAll(async function () {
     nock.cleanAll();
+    jest.clearAllTimers();
+    const cleanupRegistry = app.container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+    await cleanupRegistry.trigger();
   });
 
   describe('Happy Path', function () {
@@ -197,7 +203,6 @@ describe('process', function () {
           domains: ['USA', 'FRANCE'],
         });
 
-      console.log(config.get('kafkaTopics'));
       const input: FeedbackResponse = {
         requestId: 'req-id',
         chosenResultId: 0,
