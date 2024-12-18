@@ -138,8 +138,8 @@ jobs:
 
         - name: Run integration tests
           run: npm run test:integration
-          env:
-            KAFKA_BROKERS: ${{ env.kafka_runner_address }}:9092
+          # env:
+          #   KAFKA_BROKERS: ${{ env.kafka_runner_address }}:9092
 
         - uses: actions/upload-artifact@v4
           with:
