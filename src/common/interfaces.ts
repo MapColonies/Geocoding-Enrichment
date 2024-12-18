@@ -1,3 +1,6 @@
+import type { Feature, FeatureCollection, Point } from 'geojson';
+import { BrokersFunction, KafkaConfig } from 'kafkajs';
+
 export interface IConfig {
   get: <T>(setting: string) => T;
   has: (setting: string) => boolean;
@@ -5,10 +8,11 @@ export interface IConfig {
 
 export interface EnrichResponse {
   user: {
+    [key: string]: string | UserDataServiceResponse;
     name: string;
   };
   query: {
-    text: string;
+    text?: string;
     language: string;
   };
   result: {
@@ -17,11 +21,13 @@ export interface EnrichResponse {
     source?: string;
     layer?: string;
     name: string;
+    location?: Feature<Point>;
+    region: string;
   };
   system: string;
   site: string;
   duration: number;
-  timestamp: Date
+  timestamp: Date;
 }
 
 export interface FeedbackResponse {
@@ -39,27 +45,68 @@ export interface GeocodingResponse {
   respondedAt: Date; // from Geocoding
 }
 
-export interface QueryResult {
-  type: 'FeatureCollection';
+export interface QueryResult extends FeatureCollection {
   geocoding: {
     query: {
-      text: string;
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      geo_context: string;
+      query?: string;
+      tile?: string;
+      /* eslint-disable @typescript-eslint/naming-convention */
+      sub_tile?: string;
+      command_name?: string;
+      control_point?: string;
+      mgrs?: string;
+      geo_context?: string;
+      /* eslint-enable @typescript-eslint/naming-convention */
     };
     version: string;
   };
-  features: {
-    type: 'Feature';
+  features: (FeatureCollection['features'][number] & {
     properties: {
       type: string;
-      source?: string;
-      layer?: string;
+      matches: {
+        layer: string;
+        source: string;
+        /* eslint-disable @typescript-eslint/naming-convention */
+        source_id: string[];
+      }[];
       names: {
         default: string;
       };
-      // eslint-disable-next-line @typescript-eslint/naming-convention
+      regions: {
+        region: string;
+        sub_region_names: string[];
+      }[];
       _score: number;
+      /* eslint-enable @typescript-eslint/naming-convention */
     };
-  }[];
+  })[];
 }
+
+export interface IApplication {
+  userDataService: {
+    endpoint: string;
+    headers?: {
+      [key: string]: string | number | boolean;
+    };
+    queryParams?: {
+      [key: string]: string | number | boolean;
+    };
+  };
+}
+
+export interface UserDataServiceResponse {
+  [key: string]: {
+    [key: string]: unknown;
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    mail: string;
+    domains: string[];
+  } | null;
+}
+
+export type KafkaOptions = {
+  brokers: string[] | BrokersFunction;
+  enableSslAuth: boolean;
+  sslPaths: { ca: string; cert: string; key: string };
+} & KafkaConfig;

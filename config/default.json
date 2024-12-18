@@ -26,7 +26,13 @@
     }
   },
   "kafka": {
-    "brokers": "kafka:9092"
+    "brokers": "kafka:9092",
+    "enableSslAuth": false,
+    "sslPaths": {
+      "ca": "",
+      "key": "",
+      "cert": ""
+    }
   },
   "kafkaConsumer": {
     "groupId": "123"
@@ -43,6 +49,17 @@
     "requestTimeout": 60000,
     "properties": {
       "index": "enrich_index"
+    }
+  },
+  "application": {
+    "userDataService": {
+      "endpoint": "http://user-data-service:8080",
+      "queryParams": {
+        "extraDetails": true
+      },
+      "headers": {
+        "headerDetails": true
+      }
     }
   }
 }

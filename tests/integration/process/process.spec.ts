@@ -1,13 +1,33 @@
+import config from 'config';
 import jsLogger from '@map-colonies/js-logger';
 import { trace } from '@opentelemetry/api';
 import httpStatusCodes from 'http-status-codes';
-import jwt from 'jsonwebtoken';
+import nock from 'nock';
 import { getApp } from '../../../src/app';
 import { SERVICES } from '../../../src/common/constants';
 import { EnrichResponse, FeedbackResponse } from '../../../src/common/interfaces';
+import { IApplication } from '../../../src/common/interfaces';
 import { ProcessRequestSender } from './helpers/requestSender';
+import { mockApiKey } from './utils';
 
-const TIMEOUT = 10000;
+const TIMEOUT = 25000;
+
+let currentKafkaTopics = {
+  input: 'topic1-test',
+};
+
+jest.mock('config', () => {
+  const originalConfig = jest.requireActual<typeof import('config')>('config');
+  return {
+    ...originalConfig,
+    get: jest.fn((key: string) => {
+      if (key === 'kafkaTopics') {
+        return currentKafkaTopics;
+      }
+      return originalConfig.get(key);
+    }),
+  };
+});
 
 describe('process', function () {
   let requestSender: ProcessRequestSender;
@@ -22,15 +42,39 @@ describe('process', function () {
     requestSender = new ProcessRequestSender(app);
   }, TIMEOUT);
 
+  beforeEach(function () {
+    jest.resetModules();
+    jest.clearAllMocks();
+  });
+
+  afterAll(function () {
+    nock.cleanAll();
+  });
+
   describe('Happy Path', function () {
     it('should return 200 status code and the resource', async function () {
+      const userId = 'avi@mapcolonies.net';
+      const userDataServiceScope = nock(config.get<IApplication>('application').userDataService.endpoint, {
+        reqheaders: {
+          headerDetails: () => true,
+        },
+      })
+        .get(`/${userId}?extraDetails=true`)
+        .reply(httpStatusCodes.OK, {
+          firstName: 'avi',
+          lastName: 'map',
+          displayName: 'mapcolonies/avi',
+          mail: 'avi@mapcolonies.net',
+          domains: ['USA', 'FRANCE'],
+        });
+
       const input: FeedbackResponse = {
         requestId: 'req-id',
         chosenResultId: 1,
         responseTime: new Date(10000 + 500),
         geocodingResponse: {
-          userId: 'user-id',
-          apiKey: jwt.sign({ system: 'api-key' }, 'secret'),
+          userId,
+          apiKey: mockApiKey,
           site: 'site-name',
           respondedAt: new Date(10000),
           response: {
@@ -38,7 +82,7 @@ describe('process', function () {
             geocoding: {
               version: 'version',
               query: {
-                text: 'query-name',
+                query: 'query-name',
                 // eslint-disable-next-line @typescript-eslint/naming-convention
                 geo_context: 'geo_context',
               },
@@ -46,26 +90,60 @@ describe('process', function () {
             features: [
               {
                 type: 'Feature',
+                geometry: {
+                  coordinates: [28.008903004732502, 19.752611840282086],
+                  type: 'Point',
+                },
                 properties: {
                   type: 'Point',
-                  source: 'not-source-name',
-                  layer: 'not-layer-name',
+                  matches: [
+                    {
+                      layer: 'not-layer-name',
+                      source: 'not-source-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      source_id: ['not-some-source-id'],
+                    },
+                  ],
                   names: {
                     default: 'not-default-name',
                   },
+                  regions: [
+                    {
+                      region: 'not-region-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      sub_region_names: [],
+                    },
+                  ],
                   // eslint-disable-next-line @typescript-eslint/naming-convention
                   _score: 10,
                 },
               },
               {
                 type: 'Feature',
+                geometry: {
+                  coordinates: [29.008903004732502, 30.752611840282086],
+                  type: 'Point',
+                },
                 properties: {
                   type: 'Point',
-                  source: 'source-name',
-                  layer: 'layer-name',
+                  matches: [
+                    {
+                      layer: 'layer-name',
+                      source: 'source-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      source_id: ['some-source-id'],
+                    },
+                  ],
                   names: {
                     default: 'default-name',
                   },
+                  regions: [
+                    {
+                      region: 'region-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      sub_region_names: [],
+                    },
+                  ],
                   // eslint-disable-next-line @typescript-eslint/naming-convention
                   _score: 5,
                 },
@@ -79,7 +157,7 @@ describe('process', function () {
       expect(response.status).toBe(httpStatusCodes.OK);
 
       const output = response.body as EnrichResponse;
-      expect(output.user.name).toBe('user-id');
+      expect(output.user.name).toBe(userId);
       expect(output.query.text).toBe('query-name');
       expect(output.query.language).toBe('he');
       expect(output.result.rank).toBe(1);
@@ -87,9 +165,145 @@ describe('process', function () {
       expect(output.result.source).toBe('source-name');
       expect(output.result.layer).toBe('layer-name');
       expect(output.result.name).toBe('default-name');
-      expect(output.system).toBe('api-key');
+      expect(output.result.region).toBe('region-name');
+      expect(output.result.location).toStrictEqual({
+        geometry: { coordinates: [29.008903004732502, 30.752611840282086], type: 'Point' },
+        properties: {},
+        type: 'Feature',
+      });
+      expect(output.system).toBe('map-colonies-test');
       expect(output.site).toBe('site-name');
       expect(output.duration).toBe(500);
+
+      userDataServiceScope.done();
+    });
+
+    it('should return 200 status code and the resource when given multiple kafka topics', async function () {
+      const userId = 'avi@mapcolonies.net';
+      currentKafkaTopics = {
+        input: 'topic1-test,topic2-test',
+      };
+      const userDataServiceScope = nock(config.get<IApplication>('application').userDataService.endpoint, {
+        reqheaders: {
+          headerDetails: () => true,
+        },
+      })
+        .get(`/${userId}?extraDetails=true`)
+        .reply(httpStatusCodes.OK, {
+          firstName: 'avi',
+          lastName: 'map',
+          displayName: 'mapcolonies/avi',
+          mail: 'avi@mapcolonies.net',
+          domains: ['USA', 'FRANCE'],
+        });
+
+      console.log(config.get('kafkaTopics'));
+      const input: FeedbackResponse = {
+        requestId: 'req-id',
+        chosenResultId: 0,
+        responseTime: new Date(10000 + 500),
+        geocodingResponse: {
+          userId,
+          apiKey: mockApiKey,
+          site: 'site-name',
+          respondedAt: new Date(10000),
+          response: {
+            type: 'FeatureCollection',
+            geocoding: {
+              version: 'version',
+              query: {
+                tile: 'tile-name',
+              },
+            },
+            features: [
+              {
+                type: 'Feature',
+                geometry: {
+                  coordinates: [28.008903004732502, 19.752611840282086],
+                  type: 'Point',
+                },
+                properties: {
+                  type: 'Point',
+                  matches: [
+                    {
+                      layer: 'not-layer-name',
+                      source: 'not-source-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      source_id: ['not-some-source-id'],
+                    },
+                  ],
+                  names: {
+                    default: 'not-default-name',
+                  },
+                  regions: [
+                    {
+                      region: 'not-region-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      sub_region_names: [],
+                    },
+                  ],
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
+                  _score: 10,
+                },
+              },
+              {
+                type: 'Feature',
+                geometry: {
+                  coordinates: [29.008903004732502, 30.752611840282086],
+                  type: 'Point',
+                },
+                properties: {
+                  type: 'Point',
+                  matches: [
+                    {
+                      layer: 'layer-name',
+                      source: 'source-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      source_id: ['some-source-id'],
+                    },
+                  ],
+                  names: {
+                    default: 'default-name',
+                  },
+                  regions: [
+                    {
+                      region: 'region-name',
+                      // eslint-disable-next-line @typescript-eslint/naming-convention
+                      sub_region_names: [],
+                    },
+                  ],
+                  // eslint-disable-next-line @typescript-eslint/naming-convention
+                  _score: 5,
+                },
+              },
+            ],
+          },
+        },
+      };
+      const response = await requestSender.process(input);
+
+      expect(response.status).toBe(httpStatusCodes.OK);
+
+      const output = response.body as EnrichResponse;
+      expect(output.user.name).toBe(userId);
+      expect(output.query.text).toBe('tile-name');
+      expect(output.query.language).toBe('he');
+      expect(output.result.rank).toBe(0);
+      expect(output.result.score).toBe(10);
+      expect(output.result.source).toBe('not-source-name');
+      expect(output.result.layer).toBe('not-layer-name');
+      expect(output.result.name).toBe('not-default-name');
+      expect(output.result.region).toBe('not-region-name');
+      expect(output.result.location).toStrictEqual({
+        geometry: { coordinates: [28.008903004732502, 19.752611840282086], type: 'Point' },
+        properties: {},
+        type: 'Feature',
+      });
+      expect(output.system).toBe('map-colonies-test');
+      expect(output.site).toBe('site-name');
+      expect(output.duration).toBe(500);
+
+      userDataServiceScope.done();
     });
   });
   describe('Bad Path', function () {

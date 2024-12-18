@@ -33,7 +33,13 @@ jobs:
         with:
          github_token: ${{ secrets.GITHUB_TOKEN }}
          file: ./openapi3.yaml
-
+         
+      - name: Run Kafka KRaft Broker
+        uses: spicyparrot/kafka-kraft-action@v1.1.0
+        with:
+          kafka-version: "3.7.0"
+          kafka-topics: "topic"
+  
   integration-test:
       name: Run Integration Tests
       runs-on: ubuntu-latest
@@ -122,6 +128,8 @@ jobs:
 
         - name: Run integration tests
           run: npm run test:integration
+          env:
+            KAFKA_BROKERS: ${{ env.kafka_runner_address }}:9092
 
         - uses: actions/upload-artifact@v4
           with:

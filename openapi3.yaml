@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
   title: Geocoding Enrichment
-  description: 'Enriches the data that comes back from a geocoding response'
-  version: 1.0.0
+  description: Enriches the data that comes back from a geocoding response
+  version: 1.0.4
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -32,10 +32,9 @@ paths:
                   type: string
                   format: date-time
                 geocodingResponse:
-                  '$ref': '#/components/schemas/geocodingResponse'
-
+                  $ref: '#/components/schemas/geocodingResponse'
       responses:
-        200:
+        '200':
           description: processed
           content:
             application/json:
@@ -91,20 +90,20 @@ paths:
                     type: string
                   duration:
                     type: number
-        400:
-          '$ref': '#/components/responses/BadRequest'
-        500:
-          '$ref': '#/components/responses/InternalError'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
 components:
   schemas:
     geocodingResponse:
       type: object
       required:
-        - 'userId'
-        - 'apiKey'
-        - 'site'
-        - 'response'
-        - 'respondedAt'
+        - userId
+        - apiKey
+        - site
+        - response
+        - respondedAt
       properties:
         userId:
           type: string
@@ -118,13 +117,14 @@ components:
         geocodingResponse:
           type: object
           required:
-            - 'type'
-            - 'features'
-            - 'geocoding'
+            - type
+            - features
+            - geocoding
           properties:
             type:
-              type: 'string'
-              enum: ['FeatureCollection']
+              type: string
+              enum:
+                - FeatureCollection
             features:
               type: array
               items:
@@ -132,7 +132,8 @@ components:
                 properties:
                   type:
                     type: string
-                    enum: ['Feature']
+                    enum:
+                      - Feature
                   properties:
                     type: object
                     properties:
@@ -152,12 +153,12 @@ components:
             geocoding:
               type: object
               required:
-                - 'query'
-                - 'response'
+                - query
+                - response
               properties:
                 version:
                   type: string
-                  pattern: '^\d{3}\.\d{3}\.\d{3}$'
+                  pattern: ^\d{3}\.\d{3}\.\d{3}$
                   example: 1.5.3
                 query:
                   type: object
@@ -173,7 +174,7 @@ components:
     errorSchema:
       type: object
       required:
-        - 'message'
+        - message
       properties:
         message:
           type: string
@@ -181,13 +182,13 @@ components:
           type: number
   responses:
     BadRequest:
-      description: 'Invalid Request'
+      description: Invalid Request
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errorSchema'
     InternalError:
-      description: 'Invalid Request'
+      description: Invalid Request
       content:
         application/json:
           schema:

@@ -1,9 +1,10 @@
+import { readFileSync } from 'fs';
 import { inject, injectable } from 'tsyringe';
 import { Logger } from '@map-colonies/js-logger';
 import { Client, ClientOptions } from '@elastic/elasticsearch';
-import { Consumer, ConsumerConfig, Kafka, KafkaConfig } from 'kafkajs';
+import { Consumer, ConsumerConfig, Kafka } from 'kafkajs';
 import { SERVICES } from './common/constants';
-import { FeedbackResponse, IConfig } from './common/interfaces';
+import { FeedbackResponse, IConfig, KafkaOptions } from './common/interfaces';
 import { ProcessManager } from './process/models/processManager';
 
 interface KafkaTopics {
@@ -24,11 +25,18 @@ export class StreamerBuilder {
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
     @inject(ProcessManager) private readonly manager: ProcessManager
   ) {
-    let kafkaConfig = config.get<KafkaConfig>('kafka');
+    let kafkaConfig = config.get<KafkaOptions>('kafka');
     if (typeof kafkaConfig.brokers === 'string' || kafkaConfig.brokers instanceof String) {
       kafkaConfig = {
         ...kafkaConfig,
         brokers: kafkaConfig.brokers.split(','),
+        ssl: kafkaConfig.enableSslAuth
+          ? {
+              key: readFileSync(kafkaConfig.sslPaths.key, 'utf-8'),
+              cert: readFileSync(kafkaConfig.sslPaths.cert, 'utf-8'),
+              ca: [readFileSync(kafkaConfig.sslPaths.ca, 'utf-8')],
+            }
+          : undefined,
       };
     }
     const consumerConfig = config.get<ConsumerConfig>('kafkaConsumer');
@@ -42,21 +50,25 @@ export class StreamerBuilder {
     const { input: inputTopic } = this.config.get<KafkaTopics>('kafkaTopics');
 
     await this.consumer.connect();
-    await this.consumer.subscribe({ topics: [inputTopic] });
+    await this.consumer.subscribe({ topics: inputTopic.split(',') });
 
     await this.consumer.run({
       eachMessage: async ({ message }) => {
         const value = message.value?.toString();
-        if (value != null) {
-          const input = JSON.parse(value) as FeedbackResponse;
-          const requestId = input.requestId;
-          const output = this.manager.process(input);
+        if (value != undefined) {
+          try {
+            const input = JSON.parse(value) as FeedbackResponse;
+            const requestId = input.requestId;
+            const output = await this.manager.process(input);
 
-          await this.elasticClient.index({
-            index: this.config.get<string>(elasticIndex),
-            body: output,
-          });
-          this.logger.info(`Added the enriched data of request: ${requestId} to Elastic successfully`);
+            await this.elasticClient.index({
+              index: this.config.get<string>(elasticIndex),
+              body: output,
+            });
+            this.logger.info(`Added the enriched data of request: ${requestId} to Elastic successfully`);
+          } catch (error) {
+            this.logger.error(`Error: Could not add data to elastic. Reason: ${(error as Error).message}`);
+          }
         }
       },
     });
