@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/MapColonies/Geocoding-Enrichment/compare/v1.1.0...v1.1.1) (2024-12-18)
+
+
+### Bug Fixes
+
+* GitHub actions workflow (MAPCO-5951) ([#10](https://github.com/MapColonies/Geocoding-Enrichment/issues/10)) ([7295cd8](https://github.com/MapColonies/Geocoding-Enrichment/commit/7295cd8705d688c443eef4c0918572b8e0808ce9))
+
 ## [1.1.0](https://github.com/MapColonies/Geocoding-Enrichment/compare/v1.0.4...v1.1.0) (2024-12-18)
 
 
