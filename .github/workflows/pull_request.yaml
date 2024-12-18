@@ -113,20 +113,20 @@ jobs:
 
         - name: Wait for Kafka
           run: |
-            until docker exec $(docker ps -qf "name=kafka") kafka-topics.sh --list --bootstrap-server localhost:9092; do
+            until docker exec -it $(docker ps -qf "name=kafka") /opt/kafka/bin/kafka-topics.sh --list --bootstrap-server localhost:9092; do
               echo "Waiting for Kafka to be ready...";
               sleep 5;
             done
                   
         - name: Create Kafka topic1
           run: |
-            docker exec $(docker ps -qf "name=kafka") \
-            kafka-topics.sh --create --topic topic1-test --bootstrap-server localhost:9092
+            docker exec -it $(docker ps -qf "name=kafka") \
+            /opt/kafka/bin/kafka-topics.sh --create --topic topic1-test --bootstrap-server localhost:9092
 
         - name: Create Kafka topic2
           run: |
-            docker exec $(docker ps -qf "name=kafka") \
-            kafka-topics.sh --create --topic topic2-test --bootstrap-server localhost:9092
+            docker exec -it $(docker ps -qf "name=kafka") \
+            /opt/kafka/bin/kafka-topics.sh --create --topic topic2-test --bootstrap-server localhost:9092
 
 
         - name: Wait for Elasticsearch
