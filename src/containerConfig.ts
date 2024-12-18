@@ -25,8 +25,11 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
     const logger = jsLogger({ ...loggerConfig, prettyPrint: loggerConfig.prettyPrint, mixin: getOtelMixin() });
 
     const metrics = new Metrics();
+    cleanupRegistry.register({ func: metrics.stop.bind(metrics), id: SERVICES.METER });
     metrics.start();
 
+    cleanupRegistry.register({ func: tracing.stop.bind(tracing), id: SERVICES.TRACER });
+    tracing.start();
     const tracer = trace.getTracer(SERVICE_NAME);
 
     const applicationConfig: IApplication = config.get<IApplication>('application');
@@ -58,15 +61,18 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
           }
         },
       },
+      {
+        token: SERVICES.CLEANUP_REGISTRY,
+        provider: { useValue: cleanupRegistry },
+      },
       { token: PROCESS_ROUTER_SYMBOL, provider: { useFactory: processRouterFactory } },
       {
         token: 'onSignal',
         provider: {
-          useValue: {
-            useValue: async (): Promise<void> => {
-              await Promise.all([tracing.stop(), metrics.stop()]);
-            },
-          },
+          useFactory: instancePerContainerCachingFactory((container) => {
+            const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
+            return cleanupRegistry.trigger.bind(cleanupRegistry);
+          }),
         },
       },
     ];
