@@ -101,28 +101,7 @@ jobs:
           run: |
             apt-get update
             apt-get install -y docker.io
-        
-        # - name: Install Kafka on Docker
-        #   run: |
-        #     docker run -d --name kafka -p 9092:9092 apache/kafka:3.8.0
-
-        # - name: Wait for Kafka
-        #   run: |
-        #     until docker exec $(docker ps -qf "name=kafka") /opt/kafka/bin/kafka-topics.sh --list --bootstrap-server localhost:9092; do
-        #       echo "Waiting for Kafka to be ready...";
-        #       sleep 5;
-        #     done
-                  
-        # - name: Create Kafka topic1
-        #   run: |
-        #     docker exec $(docker ps -qf "name=kafka") \
-        #     /opt/kafka/bin/kafka-topics.sh --create --topic topic1-test --bootstrap-server localhost:9092
-
-        # - name: Create Kafka topic2
-        #   run: |
-        #     docker exec $(docker ps -qf "name=kafka") \
-        #     /opt/kafka/bin/kafka-topics.sh --create --topic topic2-test --bootstrap-server localhost:9092
-            
+       
         - name: Wait for Kafka
           run: |
             until docker exec $(docker ps -qf "name=kafka") kafka-topics.sh --list --bootstrap-server localhost:9092; do
@@ -149,8 +128,6 @@ jobs:
 
         - name: Run integration tests
           run: npm run test:integration
-          # env:
-          #   KAFKA_BROKERS: ${{ env.kafka_runner_address }}:9092
 
         - uses: actions/upload-artifact@v4
           with:
