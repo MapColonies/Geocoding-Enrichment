@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/MapColonies/Geocoding-Enrichment/compare/v1.1.1...v1.2.0) (2024-12-19)
+
+
+### Features
+
+* added workflow dispatch ([f4b6259](https://github.com/MapColonies/Geocoding-Enrichment/commit/f4b6259e39d3c884fd7f09203f35306f5cae6e05))
+
+
+### Bug Fixes
+
+* build and push ([4406b49](https://github.com/MapColonies/Geocoding-Enrichment/commit/4406b49834d882b1e4d96ac3dfda48524533efbd))
+* fixed build and push workflow ([5f90a27](https://github.com/MapColonies/Geocoding-Enrichment/commit/5f90a27952f1d3bd1f6d05c865c84b7b3594f2dd))
+* github workflow action release on tag ([99fdcc7](https://github.com/MapColonies/Geocoding-Enrichment/commit/99fdcc7865eb5ada11e09def7fe54376cd6f17f9))
+* removed workflow dispatch ([bf262ab](https://github.com/MapColonies/Geocoding-Enrichment/commit/bf262ab78f2cf5e4a45a0b0f0e9324bce21c1e5b))
+
 ### [1.1.1](https://github.com/MapColonies/Geocoding-Enrichment/compare/v1.1.0...v1.1.1) (2024-12-18)
 
 
