@@ -1,12 +1,12 @@
 name: Publish Release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
 
 jobs:
-
   build_and_test:
     runs-on: ubuntu-latest
 
