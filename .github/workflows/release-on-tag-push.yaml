@@ -1,7 +1,6 @@
 name: "Publish release on tag push"
 
 on:
-  workflow_dispatch:
   workflow_call:
     inputs:
       enableOpenApiToPostman:
