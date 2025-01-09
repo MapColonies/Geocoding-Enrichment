@@ -7,7 +7,7 @@ export interface IConfig {
 }
 
 export interface EnrichResponse {
-  user: {
+  user?: {
     [key: string]: string | UserDataServiceResponse;
     name: string;
   };
@@ -16,13 +16,13 @@ export interface EnrichResponse {
     language: string;
   };
   result: {
-    rank: number;
-    score: number;
+    rank: number | null;
+    score?: number;
     source?: string;
     layer?: string;
-    name: string;
+    name?: string;
     location?: Feature<Point>;
-    region: string;
+    region?: string;
   };
   system: string;
   site: string;
@@ -32,13 +32,13 @@ export interface EnrichResponse {
 
 export interface FeedbackResponse {
   requestId: string;
-  chosenResultId: number;
+  chosenResultId: number | string;
   responseTime: Date; // from FeedbackApi
   geocodingResponse: GeocodingResponse;
 }
 
 export interface GeocodingResponse {
-  userId: string;
+  userId: string | null;
   apiKey: string;
   site: string;
   response: QueryResult;

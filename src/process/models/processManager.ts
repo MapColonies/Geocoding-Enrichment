@@ -15,36 +15,16 @@ export class ProcessManager {
   ) {}
 
   public async process(feedbackResponse: FeedbackResponse): Promise<EnrichResponse> {
-    let score = 0;
-
-    const selectedResponse = feedbackResponse.geocodingResponse.response.features[feedbackResponse.chosenResultId];
     const token = JSON.parse(Buffer.from(feedbackResponse.geocodingResponse.apiKey.split('.')[1], 'base64').toString()) as { sub: string };
     const text = this.getQueryText(feedbackResponse);
 
-    if (selectedResponse.properties._score) {
-      score = selectedResponse.properties._score;
-    }
-
-    const { endpoint, queryParams, headers } = this.appConfig.userDataService;
-    const fetchedUserData = await fetchUserDataService(endpoint, feedbackResponse.geocodingResponse.userId, queryParams, headers);
-
-    return {
-      user: {
-        name: feedbackResponse.geocodingResponse.userId,
-        ...fetchedUserData,
-      },
+    const enrichedResponse: EnrichResponse = {
       query: {
         language: arabicRegex.test(text) ? 'ar' : 'he',
         text,
       },
       result: {
-        rank: feedbackResponse.chosenResultId,
-        score,
-        source: selectedResponse.properties.matches[0].source,
-        layer: selectedResponse.properties.matches[0].layer,
-        name: selectedResponse.properties.names.default,
-        region: selectedResponse.properties.regions[0].region,
-        location: center(selectedResponse),
+        rank: null,
       },
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       system: token?.sub,
@@ -54,6 +34,10 @@ export class ProcessManager {
       duration: new Date(feedbackResponse.responseTime) - new Date(feedbackResponse.geocodingResponse.respondedAt),
       timestamp: new Date(),
     };
+    if (feedbackResponse.chosenResultId === '') {
+      return enrichedResponse;
+    }
+    return this.enrichData(feedbackResponse, enrichedResponse);
   }
 
   public getQueryText(feedbackResponse: FeedbackResponse): string {
@@ -65,5 +49,32 @@ export class ProcessManager {
     text += additionalInfo != undefined ? `, ${additionalInfo}` : '';
 
     return text;
+  }
+
+  public async enrichData(feedbackResponse: FeedbackResponse, enrichedResponse: EnrichResponse): Promise<EnrichResponse> {
+    let score = 0;
+    const chosenResult: number = feedbackResponse.chosenResultId as number;
+    const selectedResponse = feedbackResponse.geocodingResponse.response.features[chosenResult];
+
+    if (selectedResponse.properties._score) {
+      score = selectedResponse.properties._score;
+    }
+    const { endpoint, queryParams, headers } = this.appConfig.userDataService;
+    const fetchedUserData = await fetchUserDataService(endpoint, feedbackResponse.geocodingResponse.userId as string, queryParams, headers);
+
+    enrichedResponse.user = {
+      name: feedbackResponse.geocodingResponse.userId as string,
+      ...fetchedUserData,
+    };
+    enrichedResponse.result = {
+      rank: chosenResult,
+      score,
+      source: selectedResponse.properties.matches[0].source,
+      layer: selectedResponse.properties.matches[0].layer,
+      name: selectedResponse.properties.names.default,
+      region: selectedResponse.properties.regions[0].region,
+      location: center(selectedResponse),
+    };
+    return enrichedResponse;
   }
 }
