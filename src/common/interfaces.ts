@@ -38,7 +38,7 @@ export interface FeedbackResponse {
 }
 
 export interface GeocodingResponse {
-  userId: string | null;
+  userId?: string;
   apiKey: string;
   site: string;
   response: QueryResult;
