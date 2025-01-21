@@ -52,13 +52,9 @@ export class ProcessManager {
   }
 
   public async enrichData(feedbackResponse: FeedbackResponse, enrichedResponse: EnrichResponse): Promise<EnrichResponse> {
-    let score = 0;
     const chosenResult: number = feedbackResponse.chosenResultId as number;
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[chosenResult];
 
-    if (selectedResponse.properties._score) {
-      score = selectedResponse.properties._score;
-    }
     const { endpoint, queryParams, headers } = this.appConfig.userDataService;
     const fetchedUserData = await fetchUserDataService(endpoint, feedbackResponse.geocodingResponse.userId as string, queryParams, headers);
 
@@ -68,7 +64,7 @@ export class ProcessManager {
     };
     enrichedResponse.result = {
       rank: chosenResult,
-      score,
+      score: selectedResponse.properties?._score ?? 0,
       source: selectedResponse.properties.matches[0].source,
       layer: selectedResponse.properties.matches[0].layer,
       name: selectedResponse.properties.names.default,
