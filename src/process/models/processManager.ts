@@ -34,7 +34,7 @@ export class ProcessManager {
       duration: new Date(feedbackResponse.responseTime) - new Date(feedbackResponse.geocodingResponse.respondedAt),
       timestamp: new Date(),
     };
-    if (feedbackResponse.chosenResultId === '') {
+    if (feedbackResponse.chosenResultId === null) {
       return enrichedResponse;
     }
     return this.enrichData(feedbackResponse, enrichedResponse);
@@ -64,6 +64,7 @@ export class ProcessManager {
     };
     enrichedResponse.result = {
       rank: chosenResult,
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       score: selectedResponse.properties?._score ?? 0,
       source: selectedResponse.properties.matches[0].source,
       layer: selectedResponse.properties.matches[0].layer,

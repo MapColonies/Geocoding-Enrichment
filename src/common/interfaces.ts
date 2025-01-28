@@ -32,7 +32,7 @@ export interface EnrichResponse {
 
 export interface FeedbackResponse {
   requestId: string;
-  chosenResultId: number | string;
+  chosenResultId: number | null;
   responseTime: Date; // from FeedbackApi
   geocodingResponse: GeocodingResponse;
 }

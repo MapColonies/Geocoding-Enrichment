@@ -29,9 +29,7 @@ paths:
                 chosenResultId:
                   oneOf:
                     - type: number
-                    - type: string
-                      enum:
-                        - ''
+                      nullable: true
                 responseTime:
                   type: string
                   format: date-time

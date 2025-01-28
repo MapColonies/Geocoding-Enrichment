@@ -317,7 +317,7 @@ describe('process', function () {
       };
       const input: FeedbackResponse = {
         requestId: 'req-id',
-        chosenResultId: '',
+        chosenResultId: null,
         responseTime: new Date(10000 + 500),
         geocodingResponse: {
           apiKey: mockApiKey,
