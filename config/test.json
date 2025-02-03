@@ -3,6 +3,6 @@
     "groupId": "123-test"
   },
   "kafkaTopics": {
-    "input": "topic1-test,topic2-test"
+    "input": ["topic1-test", "topic2-test"]
   }
 }

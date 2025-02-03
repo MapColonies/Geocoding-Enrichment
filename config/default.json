@@ -38,7 +38,7 @@
     "groupId": "123"
   },
   "kafkaTopics": {
-    "input": "topic"
+    "input": ["topic"]
   },
   "elastic": {
     "node": "http://elasticsearch:9200",

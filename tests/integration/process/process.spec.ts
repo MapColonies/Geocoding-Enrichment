@@ -14,7 +14,7 @@ import { ProcessRequestSender } from './helpers/requestSender';
 import { mockApiKey } from './utils';
 
 let currentKafkaTopics = {
-  input: 'topic1-test',
+  input: ['topic1-test'],
 };
 
 jest.mock('config', () => {
@@ -187,7 +187,7 @@ describe('process', function () {
     it('should return 200 status code and the resource when given multiple kafka topics', async function () {
       const userId = 'avi@mapcolonies.net';
       currentKafkaTopics = {
-        input: 'topic1-test,topic2-test',
+        input: ['topic1-test', 'topic2-test'],
       };
       const userDataServiceScope = nock(config.get<IApplication>('application').userDataService.endpoint, {
         reqheaders: {
@@ -313,7 +313,7 @@ describe('process', function () {
 
     it('should return 200 status code when getting missing data - meaning user did not choose a response', async function () {
       currentKafkaTopics = {
-        input: 'topic1-test,topic2-test',
+        input: ['topic1-test', 'topic2-test'],
       };
       const input: FeedbackResponse = {
         requestId: 'req-id',

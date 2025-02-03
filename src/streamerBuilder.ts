@@ -9,7 +9,7 @@ import { FeedbackResponse, IConfig, KafkaOptions } from './common/interfaces';
 import { ProcessManager } from './process/models/processManager';
 
 interface KafkaTopics {
-  input: string;
+  input: string[];
 }
 
 const elasticIndex = 'elastic.properties.index';
@@ -53,7 +53,8 @@ export class StreamerBuilder {
     const { input: inputTopic } = this.config.get<KafkaTopics>('kafkaTopics');
 
     await this.consumer.connect();
-    await this.consumer.subscribe({ topics: inputTopic.split(',') });
+    await this.consumer.subscribe({ topics: inputTopic });
+    this.logger.info(`Kafka consumer subscribed successfully to ${inputTopic.toString()}`);
 
     await this.consumer.run({
       eachMessage: async ({ message }) => {
