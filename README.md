@@ -9,12 +9,12 @@ Checkout the OpenAPI spec [here](/openapi3.yaml)
 
 ## How does it work?
 Once the requesting system sends the `request_id`, the `chosen_response_id`, and the `user_id` of the user who used [Geocoding](https://github.com/MapColonies/Geocoding) back to us using [Feedback api](https://github.com/MapColonies/feedback-api), that response is then combined with Geocoding's response and sent to Kafka, which then is consumed by Geocoding-enrichment.</br> 
-Once the response reaches geocoding-enrichment, the service then attaches the `chosen_response_id` to the geocoding response to see what response the user selected.</br>
+When the response reaches geocoding-enrichment, the service then attaches the `chosen_response_id` to the geocoding response to see what response the user selected.</br>
 In addition to adding some data to the response, The service also uses the userData service in order to fetch the user's data and see who uses Geocoding.</br>
 Once the data is enriched, it is stored in Elasticsearch which is connected to a Grafana Dashboard in order to be analyzed. 
 
 ## UserData Service:
-We use 3rd party software in order to extract user details from the userId. Here is a mock service that will preduce the somewhat expected response from the userData Service.
+We use an external ADFS in order to extract user details from the userId. Here is a mock service that will preduce the somewhat expected response from the userData Service.
 ```
 const express = require('express');
 
