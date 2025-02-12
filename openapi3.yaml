@@ -27,7 +27,9 @@ paths:
                 requestId:
                   type: string
                 chosenResultId:
-                  type: number
+                  oneOf:
+                    - type: number
+                      nullable: true
                 responseTime:
                   type: string
                   format: date-time
@@ -99,7 +101,6 @@ components:
     geocodingResponse:
       type: object
       required:
-        - userId
         - apiKey
         - site
         - response

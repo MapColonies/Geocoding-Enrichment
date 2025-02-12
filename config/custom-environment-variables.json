@@ -56,7 +56,10 @@
     "groupId": "KAFKA_CONSUMER_GROUP_ID"
   },
   "kafkaTopics": {
-    "input": "KAFKA_INPUT_TOPIC"
+    "input": {
+      "__name": "KAFKA_INPUT_TOPIC",
+      "__format": "json"
+    }
   },
   "elastic": {
     "node": "ELASTIC_URL",
