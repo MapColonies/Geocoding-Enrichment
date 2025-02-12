@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Geocoding Enrichment
   description: Enriches the data that comes back from a geocoding response
-  version: 1.2.0
+  version: 1.3.0
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
