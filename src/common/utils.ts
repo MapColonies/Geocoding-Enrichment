@@ -28,7 +28,13 @@ const fetchMirageData = async (
   return (res?.data ?? {}) as UserDataServiceResponse;
 };
 
-const fetchKartoffelData = async (userId: string, endpoint: string, kartoffelDataService: KartoffelDataService, logger: Logger, domains?: string[]): Promise<UserDataServiceResponse> => {
+const fetchKartoffelData = async (
+  userId: string,
+  endpoint: string,
+  kartoffelDataService: KartoffelDataService,
+  logger: Logger,
+  domains?: string[]
+): Promise<UserDataServiceResponse> => {
   try {
     console.log(`Fetching kartoffel data for userId: ${userId}`);
     const kartoffelToken: SpikeTokenResponse = await kartoffelDataService.getTokenFromRedis();
