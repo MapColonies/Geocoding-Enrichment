@@ -15,5 +15,9 @@ export const SERVICES = {
   ELASTIC_CLIENT: Symbol('ElasticClient'),
   APPLICATION: Symbol('Application'),
   CLEANUP_REGISTRY: Symbol('CleanupRegistry'),
+  REDIS: Symbol('Redis'),
 } satisfies Record<string, symbol>;
 /* eslint-enable @typescript-eslint/naming-convention */
+
+export const MAX_RETRIES = 3;
+export const SERVICE_REDIS_KEY = 'kartoffel';

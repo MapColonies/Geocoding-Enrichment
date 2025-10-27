@@ -85,12 +85,53 @@ export interface QueryResult extends FeatureCollection {
 export interface IApplication {
   userDataService: {
     endpoint: string;
+    serviceName: string;
     headers?: {
       [key: string]: string | number | boolean;
     };
     queryParams?: {
       [key: string]: string | number | boolean;
     };
+    domains?: string[];
+  };
+}
+
+/* eslint-disable @typescript-eslint/naming-convention */
+export interface SpikeTokenResponse {
+  access_token: string;
+  expires_in: number;
+}
+/* eslint-enable @typescript-eslint/naming-convention */
+
+export interface KartoffelResponseData {
+  firstName?: string;
+  lastName?: string;
+  entityType?: string;
+  personalNumber?: string;
+  identityCard?: string;
+  rank?: string;
+  akaUnit?: string;
+  sex?: string;
+  serviceType?: string;
+  clearance?: string;
+  displayName?: string;
+  hierarchy?: string;
+  jobTitle?: string;
+  phone?: string[];
+  mobilePhone?: string[];
+  updatedAt?: number;
+  fullName?: string;
+  mail?: string;
+}
+
+export interface Spike {
+  url: string;
+  auth: {
+    username: string;
+    password: string;
+  };
+  requestBody: {
+    [key: string]: string | number | boolean;
   };
 }
 

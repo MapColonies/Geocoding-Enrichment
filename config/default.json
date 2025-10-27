@@ -25,6 +25,20 @@
       }
     }
   },
+  "redis": {
+    "host": "redis",
+    "port": 6379,
+    "username": "",
+    "password": "",
+    "enableSslAuth": false,
+    "sslPaths": {
+      "ca": "",
+      "key": "",
+      "cert": ""
+    },
+    "database": 1,
+    "prefix": "userdata"
+  },
   "kafka": {
     "brokers": "kafka:9092",
     "enableSslAuth": false,
@@ -51,15 +65,37 @@
       "index": "enrich_index"
     }
   },
+  "spike": {
+    "url": "http://spike/token",
+    "auth": {
+      "username": "spike",
+      "password": "spike"
+    },
+    "requestBody": {
+      "body": true
+    }
+  },
+  "secondarySpike": {
+    "url": "http://spike/token",
+    "auth": {
+      "username": "secondSpike",
+      "password": "secondSpike"
+    },
+    "requestBody": {
+      "body": true
+    }
+  },
   "application": {
     "userDataService": {
-      "endpoint": "http://user-data-service:8080",
+      "serviceName": "kartoffel",
+      "endpoint": "http://userDataService/kartoffel",
       "queryParams": {
         "extraDetails": true
       },
       "headers": {
         "headerDetails": true
-      }
+      },
+      "domain": "local"
     }
   }
 }

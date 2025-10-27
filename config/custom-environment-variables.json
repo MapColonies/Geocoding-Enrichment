@@ -39,6 +39,28 @@
       }
     }
   },
+  "redis": {
+    "host": "REDIS_HOST",
+    "port": {
+      "__name": "REDIS_PORT",
+      "__format": "number"
+    },
+    "username": "REDIS_USERNAME",
+    "password": "REDIS_PASSWORD",
+    "enableSslAuth": {
+      "__name": "REDIS_ENABLE_SSL_AUTH",
+      "__format": "boolean"
+    },
+    "sslPaths": {
+      "ca": "REDIS_CA_PATH",
+      "key": "REDIS_KEY_PATH",
+      "cert": "REDIS_CERT_PATH"
+    },
+    "database": {
+      "__name": "REDIS_DATABASE",
+      "__format": "number"
+    }
+  },
   "kafka": {
     "brokers": "KAFKA_BROKERS",
     "clientId": "KAFKA_CLIENT_ID",
@@ -71,6 +93,28 @@
       "index": "ELASTIC_INDEX"
     }
   },
+  "spike": {
+    "url": "SPIKE_URL",
+    "auth": {
+      "username": "SPIKE_USERNAME",
+      "password": "SPIKE_PASSWORD"
+    },
+    "requestBody": {
+      "__name": "SPIKE_REQUEST_BODY",
+      "__format": "json"
+    }
+  },
+  "secondarySpike": {
+    "url": "SECOND_SPIKE_URL",
+    "auth": {
+      "username": "SECOND_SPIKE_USERNAME",
+      "password": "SECOND_SPIKE_PASSWORD"
+    },
+    "requestBody": {
+      "__name": "SECOND_SPIKE_REQUEST_BODY",
+      "__format": "json"
+    }
+  },
   "application": {
     "userDataService": {
       "endpoint": "USER_DATA_SERVICE_ENDPOINT",
@@ -80,6 +124,10 @@
       },
       "queryParams": {
         "__name": "USER_DATA_SERVICE_QUERY_PARAMS",
+        "__format": "json"
+      },
+      "domain": {
+        "__name": "USER_DATA_SERVICE_DOMAIN",
         "__format": "json"
       }
     }

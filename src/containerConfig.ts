@@ -9,6 +9,7 @@ import { instancePerContainerCachingFactory } from 'tsyringe';
 import { SERVICES, SERVICE_NAME } from './common/constants';
 import { elasticClientFactory, ElasticClient } from './common/elastic/index';
 import { tracing } from './common/tracing';
+import { RedisClient, redisClientFactory } from './common/redis';
 import { processRouterFactory, PROCESS_ROUTER_SYMBOL } from './process/routes/processRouter';
 import { InjectionObject, registerDependencies } from './common/dependencyRegistration';
 import { IApplication } from './common/interfaces';
@@ -73,6 +74,25 @@ export const registerExternalValues = async (options?: RegisterOptions): Promise
             const cleanupRegistry = container.resolve<CleanupRegistry>(SERVICES.CLEANUP_REGISTRY);
             return cleanupRegistry.trigger.bind(cleanupRegistry);
           }),
+        },
+      },
+      {
+        token: SERVICES.REDIS,
+        provider: { useFactory: instancePerContainerCachingFactory(redisClientFactory) },
+        postInjectionHook: async (deps: DependencyContainer): Promise<void> => {
+          const redis = deps.resolve<RedisClient>(SERVICES.REDIS);
+          try {
+            cleanupRegistry.register({
+              func: async (): Promise<void> => {
+                await redis.quit();
+                return Promise.resolve();
+              },
+              id: SERVICES.REDIS,
+            });
+            await redis.connect();
+          } catch (error) {
+            logger.error({ msg: 'Connection to redis failed', error });
+          }
         },
       },
     ];

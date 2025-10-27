@@ -2,8 +2,9 @@ import { Logger } from '@map-colonies/js-logger';
 import { center } from '@turf/center';
 import { inject, injectable } from 'tsyringe';
 import { SERVICES } from '../../common/constants';
-import { EnrichResponse, FeedbackResponse, IApplication } from '../../common/interfaces';
-import { fetchUserDataService } from '../../common/utils';
+import { EnrichResponse, FeedbackResponse, IApplication, IConfig } from '../../common/interfaces';
+import { getUserDataService } from '../../common/utils';
+import { RedisClient } from '../../common/redis';
 
 const arabicRegex = /[\u0600-\u06FF]/;
 
@@ -11,7 +12,9 @@ const arabicRegex = /[\u0600-\u06FF]/;
 export class ProcessManager {
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.APPLICATION) private readonly appConfig: IApplication
+    @inject(SERVICES.APPLICATION) private readonly appConfig: IApplication,
+    @inject(SERVICES.CONFIG) private readonly config: IConfig,
+    @inject(SERVICES.REDIS) private readonly redisClient: RedisClient
   ) {}
 
   public async process(feedbackResponse: FeedbackResponse): Promise<EnrichResponse> {
@@ -55,8 +58,13 @@ export class ProcessManager {
     const chosenResult: number = feedbackResponse.chosenResultId as number;
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[chosenResult];
 
-    const { endpoint, queryParams, headers } = this.appConfig.userDataService;
-    const fetchedUserData = await fetchUserDataService(endpoint, feedbackResponse.geocodingResponse.userId as string, queryParams, headers);
+    const fetchedUserData = await getUserDataService(
+      this.appConfig,
+      feedbackResponse.geocodingResponse.userId as string,
+      this.logger,
+      this.config,
+      this.redisClient
+    );
 
     enrichedResponse.user = {
       name: feedbackResponse.geocodingResponse.userId as string,

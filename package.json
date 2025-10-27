@@ -61,6 +61,7 @@
     "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
     "prom-client": "^15.1.2",
+    "redis": "^4.7.0",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.8.0"
   },
