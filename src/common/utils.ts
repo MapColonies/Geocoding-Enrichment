@@ -36,7 +36,6 @@ const fetchKartoffelData = async (
   domains?: string[]
 ): Promise<UserDataServiceResponse> => {
   try {
-    console.log(`Fetching kartoffel data for userId: ${userId}`);
     const kartoffelToken: SpikeTokenResponse = await kartoffelDataService.getTokenFromRedis();
     const token = kartoffelToken.access_token;
 

@@ -14,7 +14,13 @@ In addition to adding some data to the response, The service also uses the userD
 Once the data is enriched, it is stored in Elasticsearch which is connected to a Grafana Dashboard in order to be analyzed. 
 
 ## UserData Service:
-We use an external ADFS in order to extract user details from the userId. Here is a mock service that will preduce the somewhat expected response from the userData Service.
+We use an external ADFS to retrieve user details based on the `userId`.
+The following mock service produces a response similar to what the real userData service would return.
+
+There are two available userData services. In the `config.json` file, specify which userData service you would like to use.
+
+If you select the second userData service, you must also use the **authenticator** route. (This route is **not required** when using the first userData service.)
+
 ```
 const express = require('express');
 
@@ -24,7 +30,7 @@ app.set('port', 5000);
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-app.get("/user_data/:userid", (req, res) => {
+app.get("/user_data_first/:userid", (req, res) => {
   console.log("new request", req.params, req.query);
   const { userid } = req.params;
   const users = {
@@ -38,6 +44,41 @@ app.get("/user_data/:userid", (req, res) => {
   };
   const user = users[userid] ? users[userid] : { [userid]: null };
   return res.status(200).json(user);
+});
+
+app.get("/user_data_second/search", (req, res) => {
+  console.log("new request", req.params, req.query);
+  const { uniqueId, expanded } = req.query;
+  if (typeof uniqueId !== "string" || !uniqueId.trim()) {
+    return res.status(400).json({ error: "Missing or invalid 'uniqueId' query param." });
+  }
+  const users = {
+    "avi@mapcolonies.net": {
+      firstName: "avi",
+      lastName: "map",
+      displayName: "mapcolonies/avi",
+      mail: "avi@mapcolonies.net",
+      domains: ["USA", "FRANCE"],
+    },
+  };
+  const user = users[uniqueId] ? users[uniqueId] : { [uniqueId]: null };
+  return res.status(200).json(user);
+});
+
+app.post('/user_data_second_auth/token', (req, res) => {
+  console.log('spike-start');
+  const auth = req.headers.authorization;
+
+  if (!auth || !auth.startsWith('Basic ')) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const token = `mock-access-token-${Date.now()}`;
+  console.log('spike');
+  return res.status(200).json({
+    access_token: token,
+    expires_in: 3600,
+  });
 });
 
 app.listen(app.get('port'), () => {
