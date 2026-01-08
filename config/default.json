@@ -12,7 +12,7 @@
     }
   },
   "server": {
-    "port": "8000",
+    "port": "8080",
     "request": {
       "payload": {
         "limit": "1mb"
@@ -26,7 +26,7 @@
     }
   },
   "kafka": {
-    "brokers": "localhost:9092",
+    "brokers": "kafka:9092",
     "enableSslAuth": false,
     "sslPaths": {
       "ca": "",
@@ -41,7 +41,7 @@
     "input": ["topic"]
   },
   "elastic": {
-    "node": "https://vector-elasticsearch-vector-dev.apps.j1lk3njp.eastus.aroapp.io",
+    "node": "http://elasticsearch:9200",
     "auth": {
       "username": "elastic",
       "password": "changeme"
@@ -53,7 +53,7 @@
   },
   "application": {
     "userDataService": {
-      "endpoint": "http://localhost/mirage",
+      "endpoint": "http://user-data-service:8080",
       "queryParams": {
         "extraDetails": true
       },
