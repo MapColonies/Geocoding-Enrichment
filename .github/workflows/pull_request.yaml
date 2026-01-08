@@ -75,12 +75,12 @@ jobs:
             KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
             KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
             KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-          options: >-
-            --health-cmd "kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"
-            --health-interval 10s
-            --health-timeout 10s
-            --health-retries 10
-            
+            options: >-
+              --health-cmd "bash -lc 'kafka-broker-api-versions.sh --bootstrap-server 127.0.0.1:9092 >/dev/null 2>&1'"
+              --health-interval 10s
+              --health-timeout 10s
+              --health-retries 30
+
       strategy:
         matrix:
           node: [18.x, 20.x]
