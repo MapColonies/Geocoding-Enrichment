@@ -97,11 +97,11 @@ jobs:
         - name: Install Node.js dependencies
           run: npm ci
 
-        - name: Install Docker
+        - name: Check Docker
           run: |
-            apt-get update
-            apt-get install -y docker.io
-       
+            docker --version
+            docker ps
+
         - name: Wait for Kafka
           run: |
             until docker exec $(docker ps -qf "name=kafka") kafka-topics.sh --list --bootstrap-server localhost:9092; do
