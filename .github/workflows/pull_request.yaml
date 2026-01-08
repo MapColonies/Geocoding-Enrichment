@@ -60,7 +60,7 @@ jobs:
             --health-retries 30
 
         zookeeper:
-          image: bitnami/zookeeper:3.8.0
+          image: zookeeper:3.8.4
           ports:
             - 2181:2181
           env:
