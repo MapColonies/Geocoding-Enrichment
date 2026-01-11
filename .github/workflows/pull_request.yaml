@@ -97,17 +97,15 @@ jobs:
         - name: Install Node.js dependencies
           run: npm ci
 
-        - name: Check Docker
-          run: |
-            docker --version
-            docker ps
-
         - name: Wait for Kafka
+          shell: bash
           run: |
-            until docker exec $(docker ps -qf "name=kafka") kafka-topics.sh --list --bootstrap-server localhost:9092; do
-              echo "Waiting for Kafka to be ready...";
-              sleep 5;
+            for i in {1..60}; do
+              (echo > /dev/tcp/kafka/9092) >/dev/null 2>&1 && echo "Kafka is up" && exit 0
+              echo "Waiting for Kafka..."
+              sleep 2
             done
+            exit 1
 
         - name: Create Kafka topic1
           run: |
