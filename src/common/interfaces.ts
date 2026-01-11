@@ -8,9 +8,8 @@ export interface IConfig {
 
 export interface EnrichResponse {
   user?: {
-    [key: string]: string | UserDataServiceResponse;
     name: string;
-  };
+  } & Partial<UserDataServiceResponse[string]>;
   query: {
     text?: string;
     language: string;

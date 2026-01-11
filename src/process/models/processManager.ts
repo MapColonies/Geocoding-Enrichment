@@ -60,8 +60,13 @@ export class ProcessManager {
 
     enrichedResponse.user = {
       name: feedbackResponse.geocodingResponse.userId as string,
-      ...fetchedUserData,
     };
+
+    if (feedbackResponse.geocodingResponse.userId !== undefined && fetchedUserData[feedbackResponse.geocodingResponse.userId] !== null) {
+      const userData = fetchedUserData[feedbackResponse.geocodingResponse.userId];
+      enrichedResponse.user = { ...enrichedResponse.user, ...userData };
+    }
+
     enrichedResponse.result = {
       rank: chosenResult,
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

@@ -59,28 +59,28 @@ jobs:
             --health-timeout 10s
             --health-retries 30
 
-        zookeeper:
-          image: bitnami/zookeeper:3.8.0
-          ports:
-            - 2181:2181
-          env:
-            ALLOW_ANONYMOUS_LOGIN: yes
-
         kafka:
-          image: bitnami/kafka:3.8.0
+          image: apache/kafka:3.8.0
           ports:
             - 9092:9092
           env:
-            KAFKA_BROKER_ID: 1
-            KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
-            KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-            ALLOW_PLAINTEXT_LISTENER: yes
-          options: >-
-            --health-cmd "kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 5
-            
+            KAFKA_NODE_ID: 1
+            KAFKA_PROCESS_ROLES: broker,controller
+            KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+            KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+            KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+            KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+            KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+            options: >-
+              --health-cmd "bash -lc 'kafka-broker-api-versions.sh --bootstrap-server 127.0.0.1:9092 >/dev/null 2>&1'"
+              --health-interval 10s
+              --health-timeout 10s
+              --health-retries 30
+
       strategy:
         matrix:
           node: [18.x, 20.x]
@@ -97,27 +97,48 @@ jobs:
         - name: Install Node.js dependencies
           run: npm ci
 
-        - name: Install Docker
-          run: |
-            apt-get update
-            apt-get install -y docker.io
-       
         - name: Wait for Kafka
+          shell: bash
           run: |
-            until docker exec $(docker ps -qf "name=kafka") kafka-topics.sh --list --bootstrap-server localhost:9092; do
-              echo "Waiting for Kafka to be ready...";
-              sleep 5;
+            for i in {1..60}; do
+              (echo > /dev/tcp/kafka/9092) >/dev/null 2>&1 && echo "Kafka is up" && exit 0
+              echo "Waiting for Kafka..."
+              sleep 2
             done
+            exit 1
 
-        - name: Create Kafka topic1
+        - name: Create Kafka topics
+          env:
+            KAFKA_BROKERS: kafka:9092
           run: |
-            docker exec $(docker ps -qf "name=kafka") \
-            kafka-topics.sh --create --topic topic1-test --bootstrap-server localhost:9092
+            node - <<'NODE'
+            const { Kafka } = require('kafkajs');
 
-        - name: Create Kafka topic2
-          run: |
-            docker exec $(docker ps -qf "name=kafka") \
-            kafka-topics.sh --create --topic topic2-test --bootstrap-server localhost:9092
+            (async () => {
+              const brokers = (process.env.KAFKA_BROKERS || 'kafka:9092').split(',');
+              const kafka = new Kafka({ clientId: 'ci-topic-init', brokers });
+
+              const admin = kafka.admin();
+              await admin.connect();
+
+              const topics = ['topic1-test', 'topic2-test'];
+
+              // Create topics only if missing (idempotent-ish)
+              // KafkaJS createTopics will return false if topics already exist.
+              const created = await admin.createTopics({
+                topics: topics.map(t => ({ topic: t, numPartitions: 1, replicationFactor: 1 })),
+                waitForLeaders: true,
+                timeout: 30000,
+              });
+
+              console.log(`createTopics result: ${created ? 'created' : 'already existed'}`);
+
+              await admin.disconnect();
+            })().catch(err => {
+              console.error(err);
+              process.exit(1);
+            });
+            NODE
 
         - name: Wait for Elasticsearch
           run: |
