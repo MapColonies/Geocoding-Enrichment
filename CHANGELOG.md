@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/MapColonies/Geocoding-Enrichment/compare/v1.3.0...v1.4.0) (2026-01-11)
+
+
+### Features
+
+* destruct userdata object ([#14](https://github.com/MapColonies/Geocoding-Enrichment/issues/14)) ([3dc3362](https://github.com/MapColonies/Geocoding-Enrichment/commit/3dc3362fc7703f4e1324710a9917dafe7cfb3a7c))
+
 ## [1.3.0](https://github.com/MapColonies/Geocoding-Enrichment/compare/v1.1.1...v1.3.0) (2025-02-12)
 
 
