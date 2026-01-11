@@ -107,15 +107,38 @@ jobs:
             done
             exit 1
 
-        - name: Create Kafka topic1
+        - name: Create Kafka topics
+          env:
+            KAFKA_BROKERS: kafka:9092
           run: |
-            docker exec $(docker ps -qf "name=kafka") \
-            kafka-topics.sh --create --topic topic1-test --bootstrap-server localhost:9092
+            node - <<'NODE'
+            const { Kafka } = require('kafkajs');
 
-        - name: Create Kafka topic2
-          run: |
-            docker exec $(docker ps -qf "name=kafka") \
-            kafka-topics.sh --create --topic topic2-test --bootstrap-server localhost:9092
+            (async () => {
+              const brokers = (process.env.KAFKA_BROKERS || 'kafka:9092').split(',');
+              const kafka = new Kafka({ clientId: 'ci-topic-init', brokers });
+
+              const admin = kafka.admin();
+              await admin.connect();
+
+              const topics = ['topic1-test', 'topic2-test'];
+
+              // Create topics only if missing (idempotent-ish)
+              // KafkaJS createTopics will return false if topics already exist.
+              const created = await admin.createTopics({
+                topics: topics.map(t => ({ topic: t, numPartitions: 1, replicationFactor: 1 })),
+                waitForLeaders: true,
+                timeout: 30000,
+              });
+
+              console.log(`createTopics result: ${created ? 'created' : 'already existed'}`);
+
+              await admin.disconnect();
+            })().catch(err => {
+              console.error(err);
+              process.exit(1);
+            });
+            NODE
 
         - name: Wait for Elasticsearch
           run: |
