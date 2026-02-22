@@ -22,7 +22,7 @@ cloudProvider:
 
 image:
   repository: geocoding-enrichment
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   tag: "v1.4.0"
 
 env:
