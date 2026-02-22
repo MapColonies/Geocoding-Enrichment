@@ -32,6 +32,11 @@
       "ca": "",
       "key": "",
       "cert": ""
+    },
+    "sasl": {
+      "mechanism": "scram-sha-256",
+      "username": "",
+      "password": ""
     }
   },
   "kafkaConsumer": {
