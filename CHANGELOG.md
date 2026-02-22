@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/MapColonies/Geocoding-Enrichment/compare/v1.4.0...v1.5.0) (2026-02-22)
+
+
+### Features
+
+* add sasl login setting to kafka ([#15](https://github.com/MapColonies/Geocoding-Enrichment/issues/15)) ([974f2b4](https://github.com/MapColonies/Geocoding-Enrichment/commit/974f2b400ef60eafa53c3c0f515133bb486ecdc6))
+
 ## [1.4.0](https://github.com/MapColonies/Geocoding-Enrichment/compare/v1.3.0...v1.4.0) (2026-01-11)
 
 
