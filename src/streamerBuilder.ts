@@ -39,6 +39,7 @@ export class StreamerBuilder {
               ca: [readFileSync(kafkaConfig.sslPaths.ca, 'utf-8')],
             }
           : undefined,
+        sasl: kafkaConfig.sasl ? { ...kafkaConfig.sasl } : undefined,
       };
     }
     const consumerConfig = config.get<ConsumerConfig>('kafkaConsumer');

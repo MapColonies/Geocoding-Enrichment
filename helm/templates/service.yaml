@@ -1,11 +1,11 @@
 {{- $releaseName := .Release.Name -}}
 {{- $chartName := include "geocoding-enrichment.name" . -}}
-{{- $deploymentFlavor := include "geocoding-enrichment.deploymentFlavor" . -}}
+{{- $cloudProviderFlavor := include "geocoding-enrichment.cloudProviderFlavor" . -}}
 {{- if .Values.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ printf "%s-service" (include "geocoding-enrichment.fullname" .) }}
+  name: {{ $releaseName }}-{{ $chartName }}
   labels:
     app: {{ $chartName }}
     component: {{ $chartName }}
@@ -13,7 +13,7 @@ metadata:
     release: {{ $releaseName }}
     {{- include "geocoding-enrichment.labels" . | nindent 4 }}
 spec:
-  {{- if eq $deploymentFlavor "minikube" }}
+  {{- if eq $cloudProviderFlavor "minikube" }}
   type: NodePort
   {{- end }}
   ports:
@@ -21,8 +21,8 @@ spec:
       targetPort: {{ .Values.env.targetPort }}
       protocol: {{ .Values.env.protocol }}
       name: http
-      {{- if eq $deploymentFlavor "minikube" }}
-      nodePort: {{ .Values.nodePort }}
+      {{- if eq $cloudProviderFlavor  "minikube" }}
+      nodePort: {{ .Values.service.nodePort }}
       {{- end }}
   selector:
     app: {{ $chartName }}

@@ -49,7 +49,12 @@
     "sslPaths": {
       "ca": "KAFKA_CA_PATH",
       "key": "KAFKA_KEY_PATH",
-      "cert": "KAFKA_CERT_PATH"
+      "cert": "KAFKA_CERT_PATkafH"
+    },
+    "sasl": {
+      "mechanism": "KAFKA_SASL_MECHANISM",
+      "username": "KAFKA_SASL_USERNAME",
+      "password": "KAFKA_SASL_PASSWORD"
     }
   },
   "kafkaConsumer": {
