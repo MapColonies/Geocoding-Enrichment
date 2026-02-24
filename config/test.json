@@ -4,11 +4,5 @@
   },
   "kafkaTopics": {
     "input": ["topic1-test", "topic2-test"]
-  },
-  "queryParams": {
-    "extraDetails": true
-  },
-  "headers": {
-    "headerDetails": true
   }
 }
