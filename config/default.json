@@ -54,10 +54,8 @@
   "application": {
     "userDataService": {
       "endpoint": "http://user-data-service:8080",
-      "queryParams": {
-      },
-      "headers": {
-      }
+      "queryParams": {},
+      "headers": {}
     }
   }
 }
