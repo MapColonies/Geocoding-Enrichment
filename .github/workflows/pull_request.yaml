@@ -148,6 +148,9 @@ jobs:
             done
 
         - name: Run integration tests
+          env:
+            USER_DATA_SERVICE_QUERY_PARAMS: '{"extraDetails":true}'
+            HEADER_PARAMS: '{"headerDetails":true}'
           run: npm run test:integration
 
         - uses: actions/upload-artifact@v4
