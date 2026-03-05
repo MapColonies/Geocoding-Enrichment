@@ -56,14 +56,16 @@ export class ProcessManager {
     const selectedResponse = feedbackResponse.geocodingResponse.response.features[chosenResult];
 
     const { endpoint, queryParams, headers } = this.appConfig.userDataService;
-    const fetchedUserData = await fetchUserDataService(endpoint, feedbackResponse.geocodingResponse.userId as string, queryParams, headers);
+    const userId = feedbackResponse.geocodingResponse.userId;
 
-    enrichedResponse.user = {
-      name: feedbackResponse.geocodingResponse.userId as string,
-    };
+    if (userId !== undefined) {
+      const fetchedUserData = await fetchUserDataService(endpoint, userId, queryParams, headers);
 
-    if (feedbackResponse.geocodingResponse.userId !== undefined && fetchedUserData[feedbackResponse.geocodingResponse.userId] !== null) {
-      const userData = fetchedUserData[feedbackResponse.geocodingResponse.userId];
+      enrichedResponse.user = {
+        name: userId,
+      };
+
+      const userData = fetchedUserData[userId] ?? fetchedUserData;
       enrichedResponse.user = { ...enrichedResponse.user, ...userData };
     }
 
