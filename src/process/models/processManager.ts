@@ -1,20 +1,36 @@
 import { Logger } from '@map-colonies/js-logger';
 import { center } from '@turf/center';
 import { inject, injectable } from 'tsyringe';
+import axios from 'axios';
+import { Counter, Histogram, Meter } from '@opentelemetry/api';
 import { SERVICES } from '../../common/constants';
 import { withSpan } from '../../common/tracing';
-import { EnrichResponse, FeedbackResponse, IApplication } from '../../common/interfaces';
+import { EnrichResponse, FeedbackResponse, IApplication, UserDataServiceResponse } from '../../common/interfaces';
 import { fetchUserDataService } from '../../common/utils';
 import { ProcessSpanName, ProcessAttributes } from '../tracing';
 
 const arabicRegex = /[\u0600-\u06FF]/;
 
+const getErrorType = (error: unknown): string => {
+  if (axios.isAxiosError(error)) {
+    return error.response !== undefined ? `http_${error.response.status}` : error.code ?? 'network_error';
+  }
+  return error instanceof Error ? error.name : 'unknown_error';
+};
+
 @injectable()
 export class ProcessManager {
+  private readonly processDurationRecorder: Histogram;
+  private readonly userDataServiceErrorsCounter: Counter;
+
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.APPLICATION) private readonly appConfig: IApplication
-  ) {}
+    @inject(SERVICES.APPLICATION) private readonly appConfig: IApplication,
+    @inject(SERVICES.METER) private readonly meter: Meter
+  ) {
+    this.processDurationRecorder = meter.createHistogram('process_duration_ms', { unit: 'ms' });
+    this.userDataServiceErrorsCounter = meter.createCounter('user_data_service_errors');
+  }
 
   public async process(feedbackResponse: FeedbackResponse): Promise<EnrichResponse> {
     return withSpan(
@@ -51,6 +67,7 @@ export class ProcessManager {
           [ProcessAttributes.SYSTEM]: enrichedResponse.system,
           [ProcessAttributes.DURATION_MS]: enrichedResponse.duration,
         });
+        this.processDurationRecorder.record(enrichedResponse.duration);
 
         if (feedbackResponse.chosenResultId === null) {
           return enrichedResponse;
@@ -83,11 +100,17 @@ export class ProcessManager {
         const userId = feedbackResponse.geocodingResponse.userId;
 
         if (userId !== undefined) {
-          const fetchedUserData = await withSpan(
-            ProcessSpanName.MANAGER_FETCH_USER_DATA,
-            { attributes: { [ProcessAttributes.USER_ID]: userId } },
-            async () => fetchUserDataService(endpoint, userId, queryParams, headers)
-          );
+          let fetchedUserData: UserDataServiceResponse;
+          try {
+            fetchedUserData = await withSpan(
+              ProcessSpanName.MANAGER_FETCH_USER_DATA,
+              { attributes: { [ProcessAttributes.USER_ID]: userId } },
+              async () => fetchUserDataService(endpoint, userId, queryParams, headers)
+            );
+          } catch (error) {
+            this.userDataServiceErrorsCounter.add(1, { type: getErrorType(error) });
+            throw error;
+          }
 
           enrichedResponse.user = {
             name: userId,

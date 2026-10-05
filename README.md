@@ -90,6 +90,18 @@ npm run start
 
 ```
 
+## Debugging the Kafka Consumer Locally
+
+To debug `StreamerBuilder`'s message handling without waiting for real traffic, start the local dependencies, run the service, and produce a FeedbackResponse payload shaped like production at it:
+
+```bash
+docker compose up kafka kafka-init elasticsearch user-data-service jaeger
+npm run start:dev
+npm run debug:produce-kafka
+```
+
+`npm run start:dev` already points at the docker-compose stack (Kafka's host-reachable `localhost:9094` listener, Elasticsearch on `localhost:9200`, the mock user-data-service on `localhost:5000`, and tracing exported to Jaeger at `localhost:4318`) — see the `start:dev` script in [package.json](package.json) if you need to point it elsewhere. `docker-compose.yaml`'s Kafka broker advertises that host-reachable listener on port `9094` (in addition to the in-network `kafka:9092` one) so the service and the script can run outside docker while talking to it. See [scripts/debug-kafka-consumer.js](scripts/debug-kafka-consumer.js) for passing a custom payload file (e.g. one captured from production) instead of the bundled sample. Traces for each run show up in the Jaeger UI at http://localhost:16686.
+
 ## Running Tests
 
 To run tests, run the following command
