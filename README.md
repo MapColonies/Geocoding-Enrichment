@@ -132,3 +132,17 @@ To only run integration tests:
 ```bash
 npm run test:integration
 ```
+
+## Deploy to azure
+
+```bash
+docker build . --tag acrarolibotnonprod.azurecr.io/geocoding-enrichment:v1.7.0-rc2
+docker push acrarolibotnonprod.azurecr.io/geocoding-enrichment:v1.7.0-rc2
+```
+
+go to https://github.com/MapColonies/vector-helms/tree/master/geocoding-helms/charts/geocoding-enrichment
+update image in values and run:
+
+```
+helm upgrade --install vector-geocoding -f azure.dev.yaml . -n vector-dev
+```
