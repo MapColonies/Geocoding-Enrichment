@@ -18,9 +18,10 @@
     "prebuild": "npm run clean",
     "build": "tsc --project tsconfig.build.json  && npm run assets:copy",
     "start": "npm run build && cd dist && node --require ./common/tracing.js ./index.js",
-    "start:dev": "npm run build && cd dist && node --enable-source-maps --require ./common/tracing.js ./index.js",
+    "start:dev": "npm run build && cd dist && KAFKA_BROKERS=localhost:9094 ELASTIC_URL=http://localhost:9200 USER_DATA_SERVICE_ENDPOINT=http://localhost:5000/user_data TELEMETRY_TRACING_ENABLED=true TELEMETRY_TRACING_URL=http://localhost:4318/v1/traces node --enable-source-maps --require ./common/tracing.js ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist",
     "clean": "rimraf dist",
+    "debug:produce-kafka": "node scripts/debug-kafka-consumer.js",
     "install": "npx husky install"
   },
   "directories": {
