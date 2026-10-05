@@ -90,17 +90,28 @@ npm run start
 
 ```
 
-## Debugging the Kafka Consumer Locally
+## Debugging Locally
 
-To debug `StreamerBuilder`'s message handling without waiting for real traffic, start the local dependencies, run the service, and produce a FeedbackResponse payload shaped like production at it:
+In production, [feedback-api](https://github.com/MapColonies/feedback-api) is the service that produces the Kafka message this service consumes: it combines the feedback it receives (`request_id`, `chosen_response_id`, `user_id`) with Geocoding's original response and publishes the result to the `kafkaTopics.input` topic. `StreamerBuilder` ([src/streamerBuilder.ts](src/streamerBuilder.ts)) is the consumer on the other end — it's the thing being debugged here.
 
-```bash
-docker compose up kafka kafka-init elasticsearch user-data-service jaeger
-npm run start:dev
-npm run debug:produce-kafka
-```
+To exercise that consumer locally without running feedback-api or waiting for real traffic, [scripts/debug-kafka-consumer.js](scripts/debug-kafka-consumer.js) stands in for feedback-api: it produces a FeedbackResponse payload, shaped exactly like what feedback-api sends, straight to a local Kafka broker.
 
-`npm run start:dev` already points at the docker-compose stack (Kafka's host-reachable `localhost:9094` listener, Elasticsearch on `localhost:9200`, the mock user-data-service on `localhost:5000`, and tracing exported to Jaeger at `localhost:4318`) — see the `start:dev` script in [package.json](package.json) if you need to point it elsewhere. `docker-compose.yaml`'s Kafka broker advertises that host-reachable listener on port `9094` (in addition to the in-network `kafka:9092` one) so the service and the script can run outside docker while talking to it. See [scripts/debug-kafka-consumer.js](scripts/debug-kafka-consumer.js) for passing a custom payload file (e.g. one captured from production) instead of the bundled sample. Traces for each run show up in the Jaeger UI at http://localhost:16686.
+1. Start the dependencies (Kafka, Elasticsearch, the userData mock, and Jaeger for tracing):
+   ```bash
+   docker compose up kafka kafka-init elasticsearch user-data-service jaeger
+   ```
+2. Run the service in dev mode. `npm run start:dev` already points at this docker-compose stack (Kafka's host-reachable `localhost:9094` listener, Elasticsearch on `localhost:9200`, the mock user-data-service on `localhost:5000`, and tracing exported to Jaeger at `localhost:4318`) — see the `start:dev` script in [package.json](package.json) if you need to point it elsewhere:
+   ```bash
+   npm run start:dev
+   ```
+3. Produce a message, standing in for feedback-api:
+   ```bash
+   npm run debug:produce-kafka
+   ```
+
+`docker-compose.yaml`'s Kafka broker advertises that host-reachable listener on port `9094` (in addition to the in-network `kafka:9092` one) so the service and the script can run outside docker while talking to it. See [scripts/debug-kafka-consumer.js](scripts/debug-kafka-consumer.js) for passing a custom payload file (e.g. one captured from production) instead of the bundled sample, or `--new-request-id` to replay the same payload without colliding on request ids.
+
+Once consumed, the enriched record lands in Elasticsearch (`curl localhost:9200/enrich_index/_search`) and the full trace — Kafka handling, the user-data lookup, and the Elasticsearch write — is viewable in the Jaeger UI at http://localhost:16686.
 
 ## Running Tests
 
