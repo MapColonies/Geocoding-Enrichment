@@ -10,7 +10,6 @@ export const StreamerAttributes = {
   KAFKA_TOPIC: 'streamer.kafka.topic',
   KAFKA_PARTITION: 'streamer.kafka.partition',
   KAFKA_OFFSET: 'streamer.kafka.offset',
-  ELASTIC_INDEX_NAME: 'streamer.elastic.index_name',
 } as const;
 
 export type StreamerAttributes = (typeof StreamerAttributes)[keyof typeof StreamerAttributes];
