@@ -55,8 +55,8 @@ services:
     image: node:20-alpine
     working_dir: /usr/src/app
     volumes:
-      - ./docker/user-data-service:/usr/src/app:ro
-    command: ['node', 'server.js']
+      - .:/usr/src/app:ro
+    command: ['npx', 'ts-node', 'docker/user-data-service/server.ts']
     ports:
       - '5000:8080'
 

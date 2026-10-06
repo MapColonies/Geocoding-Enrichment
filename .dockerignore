@@ -4,6 +4,9 @@ tests
 .github
 coverage
 node_modules
+docker
+scripts
+docker-compose.yaml
 .prettier*
 commitlint.config.json
 README.md

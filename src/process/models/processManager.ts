@@ -53,12 +53,9 @@ export class ProcessManager {
           result: {
             rank: null,
           },
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          system: token?.sub,
+          system: token.sub,
           site: feedbackResponse.geocodingResponse.site,
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          duration: new Date(feedbackResponse.responseTime) - new Date(feedbackResponse.geocodingResponse.respondedAt),
+          duration: new Date(feedbackResponse.responseTime).getTime() - new Date(feedbackResponse.geocodingResponse.respondedAt).getTime(),
           timestamp: new Date(),
         };
 
@@ -69,9 +66,6 @@ export class ProcessManager {
         });
         this.processDurationRecorder.record(enrichedResponse.duration);
 
-        if (feedbackResponse.chosenResultId === null) {
-          return enrichedResponse;
-        }
         return this.enrichData(feedbackResponse, enrichedResponse);
       }
     );
@@ -89,11 +83,15 @@ export class ProcessManager {
   }
 
   public async enrichData(feedbackResponse: FeedbackResponse, enrichedResponse: EnrichResponse): Promise<EnrichResponse> {
+    const chosenResult = feedbackResponse.chosenResultId;
+    if (chosenResult === null) {
+      return enrichedResponse;
+    }
+
     return withSpan(
       ProcessSpanName.MANAGER_ENRICH_DATA,
-      { attributes: { [ProcessAttributes.CHOSEN_RESULT_ID]: feedbackResponse.chosenResultId ?? undefined } },
+      { attributes: { [ProcessAttributes.CHOSEN_RESULT_ID]: chosenResult } },
       async (span) => {
-        const chosenResult: number = feedbackResponse.chosenResultId as number;
         const selectedResponse = feedbackResponse.geocodingResponse.response.features[chosenResult];
 
         const { endpoint, queryParams, headers } = this.appConfig.userDataService;
@@ -108,6 +106,7 @@ export class ProcessManager {
               async () => fetchUserDataService(endpoint, userId, queryParams, headers)
             );
           } catch (error) {
+            this.logger.error(`Failed to fetch user data for user: ${userId}`, error);
             this.userDataServiceErrorsCounter.add(1, { type: getErrorType(error) });
             throw error;
           }
