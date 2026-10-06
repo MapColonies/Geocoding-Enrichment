@@ -11,6 +11,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src"],
+  "include": ["src", "scripts", "docker"],
   "exclude": ["node_modules", "dist", "tests"]
 }
