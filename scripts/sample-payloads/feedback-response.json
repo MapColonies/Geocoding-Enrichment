@@ -1,0 +1,44 @@
+{
+  "requestId": "debug-local-001",
+  "chosenResultId": 0,
+  "responseTime": "2026-10-05T10:00:03.500Z",
+  "geocodingResponse": {
+    "userId": "avi@mapcolonies.net",
+    "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtYXAtY29sb25pZXMtdGVzdCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMn0.cyKspTifStJI-w2lYk05QaFNyyHYDtUupJddqVj7ZS8",
+    "site": "geocoding-web-client",
+    "respondedAt": "2026-10-05T10:00:03.000Z",
+    "response": {
+      "type": "FeatureCollection",
+      "geocoding": {
+        "version": "1.0",
+        "query": {
+          "query": "דיזנגוף 99, תל אביב"
+        }
+      },
+      "features": [
+        {
+          "type": "Feature",
+          "geometry": { "type": "Point", "coordinates": [34.774302, 32.084041] },
+          "properties": {
+            "type": "Point",
+            "matches": [{ "layer": "address", "source": "osm", "source_id": ["way/123456"] }],
+            "names": { "default": "דיזנגוף 99, תל אביב - יפו" },
+            "regions": [{ "region": "תל אביב - יפו", "sub_region_names": ["מרכז"] }],
+            "_score": 0.97
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": { "type": "Point", "coordinates": [34.781, 32.09] },
+          "properties": {
+            "type": "Point",
+            "matches": [{ "layer": "address", "source": "osm", "source_id": ["way/654321"] }],
+            "names": { "default": "דיזנגוף 101, תל אביב - יפו" },
+            "regions": [{ "region": "תל אביב - יפו", "sub_region_names": ["מרכז"] }],
+            "_score": 0.81
+          }
+        }
+      ]
+    }
+  }
+}
