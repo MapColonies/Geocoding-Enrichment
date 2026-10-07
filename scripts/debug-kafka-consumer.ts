@@ -1,12 +1,11 @@
-#!/usr/bin/env -S npx ts-node
-// See README.md "Debugging Locally" for usage, prerequisites, and env vars.
+// Run via `npm run debug:produce-kafka`. See README.md "Debugging Locally" for usage, prerequisites, and env vars.
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Kafka } from 'kafkajs';
 import { FeedbackResponse } from '../src/common/interfaces';
 
-const DEFAULT_PAYLOAD_PATH = join(__dirname, 'sample-payloads', 'feedback-response.json');
+const DEFAULT_PAYLOAD_PATH = join(process.cwd(), 'scripts', 'sample-payloads', 'feedback-response.json');
 const CLI_ARGS_OFFSET = 2; // skip `node` and the script path in argv
 
 interface ParsedArgs {

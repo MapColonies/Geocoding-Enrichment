@@ -21,7 +21,7 @@
     "start:dev": "npm run build && cd dist && KAFKA_BROKERS=localhost:9094 ELASTIC_URL=http://localhost:9200 USER_DATA_SERVICE_ENDPOINT=http://localhost:5000/user_data TELEMETRY_TRACING_ENABLED=true TELEMETRY_TRACING_URL=http://localhost:4318/v1/traces node --enable-source-maps --require ./common/tracing.js ./index.js",
     "assets:copy": "copyfiles -f ./config/* ./dist/config && copyfiles -f ./openapi3.yaml ./dist/ && copyfiles ./package.json dist",
     "clean": "rimraf dist",
-    "debug:produce-kafka": "ts-node scripts/debug-kafka-consumer.ts",
+    "debug:produce-kafka": "tsc --project tsconfig.json --skipLibCheck && node dist/scripts/debug-kafka-consumer.js",
     "install": "npx husky install"
   },
   "directories": {
@@ -100,7 +100,6 @@
     "standard-version": "^9.5.0",
     "supertest": "^6.3.3",
     "ts-jest": "^29.0.5",
-    "ts-node": "^10.9.1",
     "typescript": "^5.1.3"
   }
 }
