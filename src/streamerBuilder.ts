@@ -22,7 +22,6 @@ export class StreamerBuilder {
   private readonly kafka: Kafka;
   private readonly consumer: Consumer;
   private readonly elasticClient: Client;
-  private readonly elasticIndexName: string;
 
   public constructor(
     @inject(SERVICES.CONFIG) private readonly config: IConfig,
@@ -50,7 +49,6 @@ export class StreamerBuilder {
     this.consumer = this.kafka.consumer(consumerConfig);
     elasticConfig = config.get<ClientOptions>('elastic');
     this.elasticClient = new Client(elasticConfig);
-    this.elasticIndexName = config.get<string>(elasticIndex);
     this.cleanupRegistry.register({ func: this.consumer.disconnect.bind(this.consumer) });
   }
 
@@ -84,7 +82,7 @@ export class StreamerBuilder {
               const input = JSON.parse(value) as FeedbackResponse;
               const requestId = input.requestId;
               const output = await this.manager.process(input);
-              await this.elasticClient.index({ index: this.elasticIndexName, body: output });
+              await this.elasticClient.index({ index: this.config.get<string>(elasticIndex), body: output });
 
               this.logger.info(`Added the enriched data of request: ${requestId} to Elastic successfully`);
             }
