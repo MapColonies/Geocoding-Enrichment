@@ -56,7 +56,8 @@ services:
     working_dir: /usr/src/app
     volumes:
       - .:/usr/src/app:ro
-    command: ['npx', 'ts-node', 'docker/user-data-service/server.ts']
+      - /usr/src/app/dist
+    command: ['sh', '-c', 'npx tsc --project tsconfig.json --skipLibCheck && node dist/docker/user-data-service/server.js']
     ports:
       - '5000:8080'
 
