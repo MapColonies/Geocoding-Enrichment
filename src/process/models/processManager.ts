@@ -1,8 +1,6 @@
 import { Logger } from '@map-colonies/js-logger';
 import { center } from '@turf/center';
 import { inject, injectable } from 'tsyringe';
-import axios from 'axios';
-import { Counter, Histogram, Meter } from '@opentelemetry/api';
 import { SERVICES } from '../../common/constants';
 import { withSpan } from '../../common/tracing';
 import { EnrichResponse, FeedbackResponse, IApplication, UserDataServiceResponse } from '../../common/interfaces';
@@ -11,26 +9,12 @@ import { ProcessSpanName, ProcessAttributes } from '../tracing';
 
 const arabicRegex = /[\u0600-\u06FF]/;
 
-const getErrorType = (error: unknown): string => {
-  if (axios.isAxiosError(error)) {
-    return error.response !== undefined ? `http_${error.response.status}` : error.code ?? 'network_error';
-  }
-  return error instanceof Error ? error.name : 'unknown_error';
-};
-
 @injectable()
 export class ProcessManager {
-  private readonly processDurationRecorder: Histogram;
-  private readonly userDataServiceErrorsCounter: Counter;
-
   public constructor(
     @inject(SERVICES.LOGGER) private readonly logger: Logger,
-    @inject(SERVICES.APPLICATION) private readonly appConfig: IApplication,
-    @inject(SERVICES.METER) private readonly meter: Meter
-  ) {
-    this.processDurationRecorder = meter.createHistogram('process_duration_ms', { unit: 'ms' });
-    this.userDataServiceErrorsCounter = meter.createCounter('user_data_service_errors');
-  }
+    @inject(SERVICES.APPLICATION) private readonly appConfig: IApplication
+  ) {}
 
   public async process(feedbackResponse: FeedbackResponse): Promise<EnrichResponse> {
     return withSpan(
@@ -64,7 +48,6 @@ export class ProcessManager {
           [ProcessAttributes.SYSTEM]: enrichedResponse.system,
           [ProcessAttributes.DURATION_MS]: enrichedResponse.duration,
         });
-        this.processDurationRecorder.record(enrichedResponse.duration);
 
         return this.enrichData(feedbackResponse, enrichedResponse);
       }
@@ -107,7 +90,6 @@ export class ProcessManager {
             );
           } catch (error) {
             this.logger.error(`Failed to fetch user data for user: ${userId}`, error);
-            this.userDataServiceErrorsCounter.add(1, { type: getErrorType(error) });
             throw error;
           }
 
