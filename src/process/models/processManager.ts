@@ -71,57 +71,53 @@ export class ProcessManager {
       return enrichedResponse;
     }
 
-    return withSpan(
-      ProcessSpanName.MANAGER_ENRICH_DATA,
-      { attributes: { [ProcessAttributes.CHOSEN_RESULT_ID]: chosenResult } },
-      async (span) => {
-        const selectedResponse = feedbackResponse.geocodingResponse.response.features[chosenResult];
+    return withSpan(ProcessSpanName.MANAGER_ENRICH_DATA, { attributes: { [ProcessAttributes.CHOSEN_RESULT_ID]: chosenResult } }, async (span) => {
+      const selectedResponse = feedbackResponse.geocodingResponse.response.features[chosenResult];
 
-        const { endpoint, queryParams, headers } = this.appConfig.userDataService;
-        const userId = feedbackResponse.geocodingResponse.userId;
+      const { endpoint, queryParams, headers } = this.appConfig.userDataService;
+      const userId = feedbackResponse.geocodingResponse.userId;
 
-        if (userId !== undefined) {
-          let fetchedUserData: UserDataServiceResponse;
-          try {
-            fetchedUserData = await withSpan(
-              ProcessSpanName.MANAGER_FETCH_USER_DATA,
-              { attributes: { [ProcessAttributes.USER_ID]: userId } },
-              async () => fetchUserDataService(endpoint, userId, queryParams, headers)
-            );
-          } catch (error) {
-            this.logger.error(`Failed to fetch user data for user: ${userId}`, error);
-            throw error;
-          }
-
-          enrichedResponse.user = {
-            name: userId,
-          };
-
-          const userData = fetchedUserData[userId] ?? fetchedUserData;
-          enrichedResponse.user = { ...enrichedResponse.user, ...userData };
+      if (userId !== undefined) {
+        let fetchedUserData: UserDataServiceResponse;
+        try {
+          fetchedUserData = await withSpan(
+            ProcessSpanName.MANAGER_FETCH_USER_DATA,
+            { attributes: { [ProcessAttributes.USER_ID]: userId } },
+            async () => fetchUserDataService(endpoint, userId, queryParams, headers)
+          );
+        } catch (error) {
+          this.logger.error(`Failed to fetch user data for user: ${userId}`, error);
+          throw error;
         }
 
-        enrichedResponse.result = {
-          rank: chosenResult,
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          score: selectedResponse.properties?._score ?? 0,
-          source: selectedResponse.properties.matches[0].source,
-          layer: selectedResponse.properties.matches[0].layer,
-          name: selectedResponse.properties.names.default,
-          region: selectedResponse.properties.regions[0].region,
-          location: center(selectedResponse),
+        enrichedResponse.user = {
+          name: userId,
         };
 
-        span?.setAttributes({
-          [ProcessAttributes.RESULT_RANK]: chosenResult,
-          [ProcessAttributes.RESULT_SCORE]: enrichedResponse.result.score,
-          [ProcessAttributes.RESULT_SOURCE]: enrichedResponse.result.source,
-          [ProcessAttributes.RESULT_LAYER]: enrichedResponse.result.layer,
-          [ProcessAttributes.RESULT_REGION]: enrichedResponse.result.region,
-        });
-
-        return enrichedResponse;
+        const userData = fetchedUserData[userId] ?? fetchedUserData;
+        enrichedResponse.user = { ...enrichedResponse.user, ...userData };
       }
-    );
+
+      enrichedResponse.result = {
+        rank: chosenResult,
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        score: selectedResponse.properties?._score ?? 0,
+        source: selectedResponse.properties.matches[0].source,
+        layer: selectedResponse.properties.matches[0].layer,
+        name: selectedResponse.properties.names.default,
+        region: selectedResponse.properties.regions[0].region,
+        location: center(selectedResponse),
+      };
+
+      span?.setAttributes({
+        [ProcessAttributes.RESULT_RANK]: chosenResult,
+        [ProcessAttributes.RESULT_SCORE]: enrichedResponse.result.score,
+        [ProcessAttributes.RESULT_SOURCE]: enrichedResponse.result.source,
+        [ProcessAttributes.RESULT_LAYER]: enrichedResponse.result.layer,
+        [ProcessAttributes.RESULT_REGION]: enrichedResponse.result.region,
+      });
+
+      return enrichedResponse;
+    });
   }
 }
