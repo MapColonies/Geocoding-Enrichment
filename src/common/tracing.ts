@@ -1,5 +1,8 @@
-import { Tracing } from '@map-colonies/telemetry';
-import { IGNORED_INCOMING_TRACE_ROUTES, IGNORED_OUTGOING_TRACE_ROUTES } from './constants';
+import { asyncCallWithSpan, callWithSpan, Tracing } from '@map-colonies/telemetry';
+import { trace, type Span, type SpanOptions, type Tracer } from '@opentelemetry/api';
+import { IGNORED_INCOMING_TRACE_ROUTES, IGNORED_OUTGOING_TRACE_ROUTES, SERVICE_NAME } from './constants';
+
+const getServiceTracer = (): Tracer => trace.getTracer(SERVICE_NAME);
 
 const tracing = new Tracing(undefined, {
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -18,3 +21,15 @@ const tracing = new Tracing(undefined, {
 tracing.start();
 
 export { tracing };
+
+/**
+ * Wraps an async function with a span. When tracing is disabled, fn runs unchanged and span is undefined.
+ */
+export const withSpan = async <T>(spanName: string, spanOptions: SpanOptions, fn: (span?: Span) => Promise<T>): Promise<T> =>
+  asyncCallWithSpan(fn, getServiceTracer(), spanName, spanOptions);
+
+/**
+ * Wraps a sync function with a span. When tracing is disabled, fn runs unchanged and span is undefined.
+ */
+export const withSpanSync = <T>(spanName: string, spanOptions: SpanOptions, fn: (span?: Span) => T): T =>
+  callWithSpan(fn, getServiceTracer(), spanName, spanOptions);
