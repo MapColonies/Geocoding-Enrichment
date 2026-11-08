@@ -5,8 +5,10 @@ import { Client, ClientOptions } from '@elastic/elasticsearch';
 import { Consumer, ConsumerConfig, Kafka } from 'kafkajs';
 import { CleanupRegistry } from '@map-colonies/cleanup-registry';
 import { SERVICES } from './common/constants';
+import { withSpan } from './common/tracing';
 import { FeedbackResponse, IConfig, KafkaOptions } from './common/interfaces';
 import { ProcessManager } from './process/models/processManager';
+import { StreamerAttributes, StreamerSpanName } from './streamerTracing';
 
 interface KafkaTopics {
   input: string[];
@@ -53,27 +55,40 @@ export class StreamerBuilder {
   public async build(): Promise<void> {
     const { input: inputTopic } = this.config.get<KafkaTopics>('kafkaTopics');
 
-    await this.consumer.connect();
-    await this.consumer.subscribe({ topics: inputTopic });
+    await withSpan(StreamerSpanName.KAFKA_STARTUP, { attributes: { [StreamerAttributes.KAFKA_TOPIC]: inputTopic.join(',') } }, async () => {
+      await this.consumer.connect();
+      await this.consumer.subscribe({ topics: inputTopic });
+    });
     this.logger.info(`Kafka consumer subscribed successfully to ${inputTopic.toString()}`);
 
     await this.consumer.run({
-      eachMessage: async ({ message }) => {
+      eachMessage: async ({ topic, partition, message }) => {
         const value = message.value?.toString();
-        if (value != undefined) {
-          try {
-            const input = JSON.parse(value) as FeedbackResponse;
-            const requestId = input.requestId;
-            const output = await this.manager.process(input);
+        if (value == undefined) {
+          return;
+        }
 
-            await this.elasticClient.index({
-              index: this.config.get<string>(elasticIndex),
-              body: output,
-            });
-            this.logger.info(`Added the enriched data of request: ${requestId} to Elastic successfully`);
-          } catch (error) {
-            this.logger.error(`Error: Could not add data to elastic. Reason: ${(error as Error).message}`);
-          }
+        try {
+          await withSpan(
+            StreamerSpanName.KAFKA_HANDLE_MESSAGE,
+            {
+              attributes: {
+                [StreamerAttributes.KAFKA_TOPIC]: topic,
+                [StreamerAttributes.KAFKA_PARTITION]: partition,
+                [StreamerAttributes.KAFKA_OFFSET]: message.offset,
+              },
+            },
+            async () => {
+              const input = JSON.parse(value) as FeedbackResponse;
+              const requestId = input.requestId;
+              const output = await this.manager.process(input);
+              await this.elasticClient.index({ index: this.config.get<string>(elasticIndex), body: output });
+
+              this.logger.info(`Added the enriched data of request: ${requestId} to Elastic successfully`);
+            }
+          );
+        } catch (error) {
+          this.logger.error(`Error: Could not add data to elastic. Reason: ${(error as Error).message}`);
         }
       },
     });
